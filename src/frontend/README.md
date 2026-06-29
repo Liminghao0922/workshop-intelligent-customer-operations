@@ -1,10 +1,22 @@
-# Frontend Placeholder
+# Frontend (Minimum Demo UI)
 
-Customer Operations Web App.
+This folder contains a minimum local demo UI for v3.
 
-Suggested responsibilities:
+## Run
 
-- Chat-style request input
-- Agent response rendering
-- Action status display
-- Escalation display
+```powershell
+cd src/frontend
+python -m http.server 4173
+```
+
+Open:
+
+```text
+http://localhost:4173
+```
+
+The page calls:
+
+```text
+POST http://localhost:5077/api/chat
+```

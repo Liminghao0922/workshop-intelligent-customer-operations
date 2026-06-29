@@ -53,6 +53,25 @@ mkdocs serve
 
 Then open the local MkDocs URL shown in your terminal.
 
+## Local Runnable Demo (v3 .NET)
+
+```powershell
+.\scripts\setup-local.ps1
+.\scripts\run-api.ps1
+```
+
+In a second terminal:
+
+```powershell
+.\scripts\run-demo.ps1
+```
+
+Optional minimal web UI:
+
+```powershell
+.\scripts\run-frontend.ps1
+```
+
 ## Publish to GitHub Pages
 
 This repo includes a GitHub Actions workflow under `.github/workflows/publish-docs.yml`.

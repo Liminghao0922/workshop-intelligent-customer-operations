@@ -1,0 +1,997 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.41.2.15936",
+      "templateHash": "7625134805447614609"
+    }
+  },
+  "parameters": {
+    "environmentName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "japaneast"
+    },
+    "voiceLiveModelDeploymentName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "voiceLiveModelName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "voiceLiveModelVersion": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "voiceLiveModelCapacity": {
+      "type": "int",
+      "defaultValue": 50
+    },
+    "acsConnectionString": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "acsCallbackSecret": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "publicBaseUrl": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "foundryAgentId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "foundryAnalyticsAgentId": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "tags": {
+      "azd-env-name": "[parameters('environmentName')]",
+      "workload": "smart-call-center"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2024-03-01",
+      "name": "[format('rg-{0}', parameters('environmentName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "smart-call-center",
+      "resourceGroup": "[format('rg-{0}', parameters('environmentName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "environmentName": {
+            "value": "[parameters('environmentName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[variables('tags')]"
+          },
+          "voiceLiveModelDeploymentName": {
+            "value": "[parameters('voiceLiveModelDeploymentName')]"
+          },
+          "voiceLiveModelName": {
+            "value": "[parameters('voiceLiveModelName')]"
+          },
+          "voiceLiveModelVersion": {
+            "value": "[parameters('voiceLiveModelVersion')]"
+          },
+          "voiceLiveModelCapacity": {
+            "value": "[parameters('voiceLiveModelCapacity')]"
+          },
+          "acsConnectionString": {
+            "value": "[parameters('acsConnectionString')]"
+          },
+          "acsCallbackSecret": {
+            "value": "[parameters('acsCallbackSecret')]"
+          },
+          "publicBaseUrl": {
+            "value": "[parameters('publicBaseUrl')]"
+          },
+          "foundryAgentId": {
+            "value": "[parameters('foundryAgentId')]"
+          },
+          "foundryAnalyticsAgentId": {
+            "value": "[parameters('foundryAnalyticsAgentId')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.41.2.15936",
+              "templateHash": "6367600746409224599"
+            }
+          },
+          "parameters": {
+            "environmentName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {}
+            },
+            "voiceLiveModelDeploymentName": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "voiceLiveModelName": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "voiceLiveModelVersion": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "voiceLiveModelCapacity": {
+              "type": "int",
+              "defaultValue": 50
+            },
+            "acsConnectionString": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "acsCallbackSecret": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "publicBaseUrl": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "foundryAgentId": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "foundryAnalyticsAgentId": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "suffix": "[take(uniqueString(subscription().id, resourceGroup().name, parameters('environmentName')), 6)]",
+            "clean": "[replace(toLower(parameters('environmentName')), '-', '')]",
+            "name": "[take(variables('clean'), 12)]",
+            "storageName": "[take(format('st{0}{1}', variables('name'), variables('suffix')), 24)]",
+            "searchName": "[take(format('srch-{0}-{1}', variables('name'), variables('suffix')), 60)]",
+            "foundryAccountName": "[take(format('ai-{0}-{1}', variables('name'), variables('suffix')), 64)]",
+            "foundryProjectName": "[take(format('proj-{0}-{1}', variables('name'), variables('suffix')), 64)]",
+            "acsName": "[take(format('acs-{0}-{1}', variables('name'), variables('suffix')), 63)]",
+            "kvName": "[take(format('kv-{0}-{1}', variables('name'), variables('suffix')), 24)]",
+            "acrName": "[take(format('acr{0}{1}', variables('name'), variables('suffix')), 50)]",
+            "logName": "[format('log-{0}-{1}', parameters('environmentName'), variables('suffix'))]",
+            "appiName": "[format('appi-{0}-{1}', parameters('environmentName'), variables('suffix'))]",
+            "envName": "[format('cae-{0}-{1}', parameters('environmentName'), variables('suffix'))]",
+            "webName": "[take(format('ca-web-{0}-{1}', variables('name'), variables('suffix')), 32)]",
+            "workerName": "[take(format('ca-worker-{0}-{1}', variables('name'), variables('suffix')), 32)]",
+            "cosmosName": "[take(format('cos{0}{1}', variables('name'), variables('suffix')), 44)]",
+            "cosmosDatabaseName": "smart-call-center",
+            "cosmosContainerName": "call-sessions"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2023-09-01",
+              "name": "[variables('logName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "sku": {
+                  "name": "PerGB2018"
+                },
+                "retentionInDays": 30
+              }
+            },
+            {
+              "type": "Microsoft.Insights/components",
+              "apiVersion": "2020-02-02",
+              "name": "[variables('appiName')]",
+              "location": "[parameters('location')]",
+              "kind": "web",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "Application_Type": "web",
+                "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logName'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.ContainerRegistry/registries",
+              "apiVersion": "2023-11-01-preview",
+              "name": "[variables('acrName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "properties": {
+                "adminUserEnabled": false
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2023-05-01",
+              "name": "[variables('storageName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "Standard_ZRS"
+              },
+              "kind": "StorageV2",
+              "properties": {
+                "allowBlobPublicAccess": false,
+                "allowSharedKeyAccess": false,
+                "minimumTlsVersion": "TLS1_2",
+                "supportsHttpsTrafficOnly": true,
+                "accessTier": "Hot"
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}', variables('storageName'), 'default')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/queueServices",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}', variables('storageName'), 'default')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}/{2}', variables('storageName'), 'default', 'post-call-jobs')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('storageName'), 'default')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}/{2}', variables('storageName'), 'default', 'call-artifacts')]",
+              "properties": {
+                "publicAccess": "None"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageName'), 'default')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}/{2}', variables('storageName'), 'default', 'deploymentpackage')]",
+              "properties": {
+                "publicAccess": "None"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageName'), 'default')]"
+              ]
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts",
+              "apiVersion": "2023-04-15",
+              "name": "[variables('cosmosName')]",
+              "location": "[parameters('location')]",
+              "kind": "GlobalDocumentDB",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "databaseAccountOfferType": "Standard",
+                "locations": [
+                  {
+                    "locationName": "[parameters('location')]",
+                    "failoverPriority": 0,
+                    "isZoneRedundant": false
+                  }
+                ],
+                "consistencyPolicy": {
+                  "defaultConsistencyLevel": "Session"
+                },
+                "capabilities": [
+                  {
+                    "name": "EnableServerless"
+                  }
+                ],
+                "publicNetworkAccess": "Enabled",
+                "enableAutomaticFailover": false,
+                "disableLocalAuth": true,
+                "disableKeyBasedMetadataWriteAccess": false
+              }
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+              "apiVersion": "2023-04-15",
+              "name": "[format('{0}/{1}', variables('cosmosName'), variables('cosmosDatabaseName'))]",
+              "properties": {
+                "resource": {
+                  "id": "[variables('cosmosDatabaseName')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+              "apiVersion": "2023-04-15",
+              "name": "[format('{0}/{1}/{2}', variables('cosmosName'), format('{0}/{1}', variables('cosmosName'), variables('cosmosDatabaseName')), variables('cosmosContainerName'))]",
+              "properties": {
+                "resource": {
+                  "id": "[variables('cosmosContainerName')]",
+                  "partitionKey": {
+                    "paths": [
+                      "/id"
+                    ],
+                    "kind": "Hash"
+                  },
+                  "indexingPolicy": {
+                    "indexingMode": "consistent",
+                    "automatic": true
+                  }
+                },
+                "options": {}
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/{1}', variables('cosmosName'), variables('cosmosDatabaseName')), '/')[0], split(format('{0}/{1}', variables('cosmosName'), variables('cosmosDatabaseName')), '/')[1])]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2023-07-01",
+              "name": "[variables('kvName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "tenantId": "[tenant().tenantId]",
+                "sku": {
+                  "family": "A",
+                  "name": "standard"
+                },
+                "enableRbacAuthorization": true,
+                "enableSoftDelete": true
+              }
+            },
+            {
+              "type": "Microsoft.Search/searchServices",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[variables('searchName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "basic"
+              },
+              "properties": {
+                "replicaCount": 1,
+                "partitionCount": 1,
+                "hostingMode": "default",
+                "publicNetworkAccess": "enabled",
+                "disableLocalAuth": false
+              }
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[variables('foundryAccountName')]",
+              "location": "[parameters('location')]",
+              "kind": "AIServices",
+              "sku": {
+                "name": "S0"
+              },
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "allowProjectManagement": true,
+                "customSubDomainName": "[variables('foundryAccountName')]",
+                "publicNetworkAccess": "Enabled"
+              }
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts/projects",
+              "apiVersion": "2025-10-01-preview",
+              "name": "[format('{0}/{1}', variables('foundryAccountName'), variables('foundryProjectName'))]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "displayName": "[variables('foundryProjectName')]",
+                "description": "Smart call center foundry project"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]"
+              ]
+            },
+            {
+              "condition": "[and(and(not(empty(parameters('voiceLiveModelDeploymentName'))), not(empty(parameters('voiceLiveModelName')))), not(empty(parameters('voiceLiveModelVersion'))))]",
+              "type": "Microsoft.CognitiveServices/accounts/deployments",
+              "apiVersion": "2024-10-01",
+              "name": "[format('{0}/{1}', variables('foundryAccountName'), parameters('voiceLiveModelDeploymentName'))]",
+              "sku": {
+                "name": "GlobalStandard",
+                "capacity": "[parameters('voiceLiveModelCapacity')]"
+              },
+              "properties": {
+                "model": {
+                  "format": "OpenAI",
+                  "name": "[parameters('voiceLiveModelName')]",
+                  "version": "[parameters('voiceLiveModelVersion')]"
+                },
+                "versionUpgradeOption": "OnceNewDefaultVersionAvailable",
+                "raiPolicyName": "Microsoft.DefaultV2"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Communication/communicationServices",
+              "apiVersion": "2023-04-01-preview",
+              "name": "[variables('acsName')]",
+              "location": "global",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "dataLocation": "Japan"
+              }
+            },
+            {
+              "type": "Microsoft.App/managedEnvironments",
+              "apiVersion": "2024-03-01",
+              "name": "[variables('envName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "appLogsConfiguration": {
+                  "destination": "log-analytics",
+                  "logAnalyticsConfiguration": {
+                    "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logName')), '2023-09-01').customerId]",
+                    "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logName')), '2023-09-01').primarySharedKey]"
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.App/containerApps",
+              "apiVersion": "2024-03-01",
+              "name": "[variables('webName')]",
+              "location": "[parameters('location')]",
+              "tags": "[union(parameters('tags'), createObject('azd-service-name', 'gateway'))]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+                "configuration": {
+                  "activeRevisionsMode": "Single",
+                  "ingress": {
+                    "external": true,
+                    "targetPort": 8080
+                  }
+                },
+                "template": {
+                  "containers": [
+                    {
+                      "name": "gateway",
+                      "image": "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest",
+                      "env": [
+                        {
+                          "name": "APP_MODE",
+                          "value": "azure"
+                        },
+                        {
+                          "name": "AZURE_LOCATION",
+                          "value": "[parameters('location')]"
+                        },
+                        {
+                          "name": "AZURE_AI_PROJECT_ENDPOINT",
+                          "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], variables('foundryProjectName'))]"
+                        },
+                        {
+                          "name": "FOUNDRY_AGENT_ID",
+                          "value": "[parameters('foundryAgentId')]"
+                        },
+                        {
+                          "name": "FOUNDRY_ANALYTICS_AGENT_ID",
+                          "value": "[parameters('foundryAnalyticsAgentId')]"
+                        },
+                        {
+                          "name": "VOICE_LIVE_ENDPOINT",
+                          "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoint]"
+                        },
+                        {
+                          "name": "VOICE_LIVE_MODEL",
+                          "value": "[parameters('voiceLiveModelDeploymentName')]"
+                        },
+                        {
+                          "name": "AZURE_SEARCH_ENDPOINT",
+                          "value": "[format('https://{0}.search.windows.net', variables('searchName'))]"
+                        },
+                        {
+                          "name": "AZURE_SEARCH_INDEX_NAME",
+                          "value": "call-center-knowledge"
+                        },
+                        {
+                          "name": "AZURE_STORAGE_ACCOUNT_NAME",
+                          "value": "[variables('storageName')]"
+                        },
+                        {
+                          "name": "CALL_ARTIFACT_CONTAINER",
+                          "value": "call-artifacts"
+                        },
+                        {
+                          "name": "POST_CALL_QUEUE_NAME",
+                          "value": "post-call-jobs"
+                        },
+                        {
+                          "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                          "value": "[reference(resourceId('Microsoft.Insights/components', variables('appiName')), '2020-02-02').ConnectionString]"
+                        },
+                        {
+                          "name": "ACS_CONNECTION_STRING",
+                          "value": "[parameters('acsConnectionString')]"
+                        },
+                        {
+                          "name": "ACS_CALLBACK_SECRET",
+                          "value": "[parameters('acsCallbackSecret')]"
+                        },
+                        {
+                          "name": "PUBLIC_BASE_URL",
+                          "value": "[if(empty(parameters('publicBaseUrl')), 'https://placeholder.example.com', parameters('publicBaseUrl'))]"
+                        },
+                        {
+                          "name": "COSMOS_ENDPOINT",
+                          "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')), '2023-04-15').documentEndpoint]"
+                        },
+                        {
+                          "name": "COSMOS_DATABASE_NAME",
+                          "value": "[variables('cosmosDatabaseName')]"
+                        },
+                        {
+                          "name": "COSMOS_CONTAINER_NAME",
+                          "value": "[variables('cosmosContainerName')]"
+                        }
+                      ],
+                      "resources": {
+                        "cpu": "[json('0.5')]",
+                        "memory": "1Gi"
+                      }
+                    }
+                  ],
+                  "scale": {
+                    "minReplicas": 1,
+                    "maxReplicas": 3
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Insights/components', variables('appiName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('storageName'), 'default', 'call-artifacts')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
+                "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', variables('storageName'), 'default', 'post-call-jobs')]",
+                "[resourceId('Microsoft.Search/searchServices', variables('searchName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.App/containerApps",
+              "apiVersion": "2024-03-01",
+              "name": "[variables('workerName')]",
+              "location": "[parameters('location')]",
+              "tags": "[union(parameters('tags'), createObject('azd-service-name', 'postcall-worker'))]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+                "configuration": {
+                  "activeRevisionsMode": "Single",
+                  "ingress": {
+                    "external": false,
+                    "targetPort": 80
+                  }
+                },
+                "template": {
+                  "containers": [
+                    {
+                      "name": "postcall-worker",
+                      "image": "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest",
+                      "env": [
+                        {
+                          "name": "APP_MODE",
+                          "value": "azure"
+                        },
+                        {
+                          "name": "AzureWebJobsStorage__accountName",
+                          "value": "[variables('storageName')]"
+                        },
+                        {
+                          "name": "AzureWebJobsStorage__credential",
+                          "value": "managedidentity"
+                        },
+                        {
+                          "name": "FUNCTIONS_WORKER_RUNTIME",
+                          "value": "dotnet-isolated"
+                        },
+                        {
+                          "name": "AZURE_AI_PROJECT_ENDPOINT",
+                          "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], variables('foundryProjectName'))]"
+                        },
+                        {
+                          "name": "FOUNDRY_AGENT_ID",
+                          "value": ""
+                        },
+                        {
+                          "name": "FOUNDRY_ANALYTICS_AGENT_ID",
+                          "value": ""
+                        },
+                        {
+                          "name": "POST_CALL_QUEUE_NAME",
+                          "value": "post-call-jobs"
+                        },
+                        {
+                          "name": "AZURE_STORAGE_ACCOUNT_NAME",
+                          "value": "[variables('storageName')]"
+                        },
+                        {
+                          "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                          "value": "[reference(resourceId('Microsoft.Insights/components', variables('appiName')), '2020-02-02').ConnectionString]"
+                        }
+                      ],
+                      "resources": {
+                        "cpu": "[json('0.25')]",
+                        "memory": "0.5Gi"
+                      }
+                    }
+                  ],
+                  "scale": {
+                    "minReplicas": 1,
+                    "maxReplicas": 2
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Insights/components', variables('appiName'))]",
+                "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', variables('storageName'), 'default', 'post-call-jobs')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+              "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', variables('acrName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'acrpull')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+              "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'blob-contributor')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+              "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', variables('acrName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'acrpull')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+              "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'blob-contributor')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.Search/searchServices', variables('searchName'))]",
+              "name": "[guid(resourceId('Microsoft.Search/searchServices', variables('searchName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'search-index-contributor')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Search/searchServices', variables('searchName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
+              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'foundry-user')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
+              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'foundry-user')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
+              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'cognitiveservices-user')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
+              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'cognitiveservices-user')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
+              "apiVersion": "2023-04-15",
+              "name": "[format('{0}/{1}', variables('cosmosName'), guid(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'cosmos-data-contributor'))]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[format('{0}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002', resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')))]",
+                "scope": "/"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "webUrl": {
+              "type": "string",
+              "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01').configuration.ingress.fqdn)]"
+            },
+            "acrLoginServer": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', variables('acrName')), '2023-11-01-preview').loginServer]"
+            },
+            "storageAccountName": {
+              "type": "string",
+              "value": "[variables('storageName')]"
+            },
+            "searchEndpoint": {
+              "type": "string",
+              "value": "[format('https://{0}.search.windows.net', variables('searchName'))]"
+            },
+            "keyVaultName": {
+              "type": "string",
+              "value": "[variables('kvName')]"
+            },
+            "postCallAnalyticsEndpoint": {
+              "type": "string",
+              "value": "post-call-jobs"
+            },
+            "foundryProjectEndpoint": {
+              "type": "string",
+              "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], variables('foundryProjectName'))]"
+            },
+            "voiceLiveEndpoint": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoint]"
+            },
+            "foundryAccountName": {
+              "type": "string",
+              "value": "[variables('foundryAccountName')]"
+            },
+            "foundryProjectName": {
+              "type": "string",
+              "value": "[variables('foundryProjectName')]"
+            },
+            "voiceLiveModelDeploymentName": {
+              "type": "string",
+              "value": "[parameters('voiceLiveModelDeploymentName')]"
+            },
+            "cosmosAccountName": {
+              "type": "string",
+              "value": "[variables('cosmosName')]"
+            },
+            "cosmosEndpoint": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')), '2023-04-15').documentEndpoint]"
+            },
+            "cosmosDatabaseName": {
+              "type": "string",
+              "value": "[variables('cosmosDatabaseName')]"
+            },
+            "cosmosContainerName": {
+              "type": "string",
+              "value": "[variables('cosmosContainerName')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-{0}', parameters('environmentName')))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "AZURE_RESOURCE_GROUP": {
+      "type": "string",
+      "value": "[format('rg-{0}', parameters('environmentName'))]"
+    },
+    "AZURE_LOCATION": {
+      "type": "string",
+      "value": "[parameters('location')]"
+    },
+    "WEB_URL": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.webUrl.value]"
+    },
+    "API_URL": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.webUrl.value]"
+    },
+    "AZURE_CONTAINER_REGISTRY_ENDPOINT": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.acrLoginServer.value]"
+    },
+    "AZURE_STORAGE_ACCOUNT_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.storageAccountName.value]"
+    },
+    "AZURE_SEARCH_ENDPOINT": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.searchEndpoint.value]"
+    },
+    "AZURE_SEARCH_INDEX_NAME": {
+      "type": "string",
+      "value": "call-center-knowledge"
+    },
+    "AZURE_KEY_VAULT_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.keyVaultName.value]"
+    },
+    "POST_CALL_QUEUE_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.postCallAnalyticsEndpoint.value]"
+    },
+    "AZURE_AI_PROJECT_ENDPOINT": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.foundryProjectEndpoint.value]"
+    },
+    "VOICE_LIVE_ENDPOINT": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.voiceLiveEndpoint.value]"
+    },
+    "VOICE_LIVE_MODEL": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.voiceLiveModelDeploymentName.value]"
+    },
+    "FOUNDRY_ACCOUNT_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.foundryAccountName.value]"
+    },
+    "FOUNDRY_PROJECT_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.foundryProjectName.value]"
+    },
+    "COSMOS_ACCOUNT_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.cosmosAccountName.value]"
+    },
+    "COSMOS_ENDPOINT": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.cosmosEndpoint.value]"
+    },
+    "COSMOS_DATABASE_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.cosmosDatabaseName.value]"
+    },
+    "COSMOS_CONTAINER_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.cosmosContainerName.value]"
+    }
+  }
+}

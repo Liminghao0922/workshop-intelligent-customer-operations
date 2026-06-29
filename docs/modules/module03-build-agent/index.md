@@ -12,6 +12,16 @@ Create a customer operations agent that can understand requests and use enterpri
 - Conversation testing
 - Response quality validation
 
+## v3 Implementation Note
+
+For local runnable flow, this module uses `MockFoundryAgentAdapter` in `src/agent/`.
+It supports four intents:
+
+- `faq_request`
+- `service_request_status`
+- `missing_information`
+- `escalation_request`
+
 ## Expected Output
 
 At the end of this module, learners should have a concrete artifact that contributes to the final intelligent customer operations solution.

@@ -1,0 +1,23 @@
+[
+  {
+    "prompt": "What information do I need to check product warranty?",
+    "expectedIntent": "faq_request",
+    "expectToolCalled": false
+  },
+  {
+    "prompt": "Can you check the status of service request SR-1001?",
+    "expectedIntent": "service_request_status",
+    "expectToolCalled": true,
+    "expectedToolName": "getServiceRequestStatus"
+  },
+  {
+    "prompt": "Can you check my repair status?",
+    "expectedIntent": "missing_information",
+    "expectToolCalled": false
+  },
+  {
+    "prompt": "This is the third time the same issue happened and I need escalation.",
+    "expectedIntent": "escalation_request",
+    "expectToolCalled": false
+  }
+]

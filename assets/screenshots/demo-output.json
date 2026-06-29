@@ -1,0 +1,30 @@
+[
+  {
+    "response": "To check product warranty, provide your product serial number and purchase date.",
+    "intent": "faq_request",
+    "toolCalled": false,
+    "toolName": null,
+    "correlationId": "27f831e9c5494c2491199ef9cbda296a"
+  },
+  {
+    "response": "Service request SR-1001 is currently In Progress. Next step: Engineer review.",
+    "intent": "service_request_status",
+    "toolCalled": true,
+    "toolName": "getServiceRequestStatus",
+    "correlationId": "2ee36eba78504205ae8675659b67c369"
+  },
+  {
+    "response": "I can help with that. Please provide your service request ID in the format SR-1001.",
+    "intent": "missing_information",
+    "toolCalled": false,
+    "toolName": null,
+    "correlationId": "2c732f3b489b434b992d2e7e08efea77"
+  },
+  {
+    "response": "I understand this has happened repeatedly. I recommend escalation to a human specialist now. Please share your service request ID if available, and we will prioritize follow-up.",
+    "intent": "escalation_request",
+    "toolCalled": false,
+    "toolName": null,
+    "correlationId": "43d272d967984c6097db61d5bf86e8df"
+  }
+]

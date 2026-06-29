@@ -86,9 +86,15 @@ nav:
           - Summary: modules/module07-multi-agent-extension/summary.md
   - Architecture:
       - Solution Architecture: architecture/solution-architecture.md
+      - Sequence Flow: architecture/sequence-flow.md
       - Data Flow: architecture/data-flow.md
       - Security & Governance: architecture/security-governance.md
+      - Observability & Evaluation: architecture/observability-evaluation.md
       - Deployment Topology: architecture/deployment-topology.md
+  - Demos:
+      - Executive Demo: demos/executive-demo.md
+      - Technical Demo: demos/technical-demo.md
+      - Customer Demo: demos/customer-demo.md
   - Resources:
       - Prompt Assets: resources/prompt-assets.md
       - Sample Data: resources/sample-data.md

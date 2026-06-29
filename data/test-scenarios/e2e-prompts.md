@@ -1,17 +1,26 @@
-# End-to-End Test Prompts
+# End-to-End Test Prompts (v3)
 
-## FAQ
+## Scenario 1 - FAQ
 
-What information do I need to check product warranty?
+- Prompt: `What information do I need to check product warranty?`
+- Expected intent: `faq_request`
+- Expected tool call: `false`
 
-## Status Lookup
+## Scenario 2 - Status Lookup
 
-Can you check the status of service request SR-1001?
+- Prompt: `Can you check the status of service request SR-1001?`
+- Expected intent: `service_request_status`
+- Expected tool call: `true`
+- Expected tool name: `getServiceRequestStatus`
 
-## Missing Information
+## Scenario 3 - Missing Information
 
-Can you check my repair status?
+- Prompt: `Can you check my repair status?`
+- Expected intent: `missing_information`
+- Expected tool call: `false`
 
-## Escalation
+## Scenario 4 - Escalation
 
-This is the third time the same issue happened and I need someone to review it urgently.
+- Prompt: `This is the third time the same issue happened and I need escalation.`
+- Expected intent: `escalation_request`
+- Expected tool call: `false`

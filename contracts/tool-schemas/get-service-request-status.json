@@ -1,0 +1,16 @@
+{
+  "name": "getServiceRequestStatus",
+  "description": "Get service request status by request ID",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "requestId": {
+        "type": "string",
+        "description": "Service request ID (for example: SR-1001)"
+      }
+    },
+    "required": [
+      "requestId"
+    ]
+  }
+}

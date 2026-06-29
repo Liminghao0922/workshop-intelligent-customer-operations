@@ -1,0 +1,68 @@
+openapi: 3.0.3
+info:
+  title: Customer Operations API
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+  /api/chat:
+    post:
+      summary: Process customer request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: Chat response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+  /api/tools/service-request-status:
+    post:
+      summary: Get service request status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+              required: [requestId]
+      responses:
+        "200":
+          description: Status response
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+        sessionId:
+          type: string
+      required: [message]
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        intent:
+          type: string
+        toolCalled:
+          type: boolean
+        toolName:
+          type: string
+          nullable: true
+        correlationId:
+          type: string
+      required: [response, intent, toolCalled, correlationId]

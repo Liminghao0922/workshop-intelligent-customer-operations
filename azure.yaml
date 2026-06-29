@@ -1,0 +1,39 @@
+name: smart-call-center-quiz
+metadata:
+  template: smart-call-center-foundry
+
+services:
+  gateway:
+    project: ./src/aspire/IntelligentCustomerOperations.Gateway
+    language: dotnet
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      remoteBuild: true
+  postcall-worker:
+    project: ./src/aspire/IntelligentCustomerOperations.PostCallWorker
+    language: dotnet
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      remoteBuild: true
+  api:
+    project: ./src/aspire/IntelligentCustomerOperations.ApiService
+    language: dotnet
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      remoteBuild: true
+  portal:
+    project: ./src/aspire/IntelligentCustomerOperations.Portal
+    language: dotnet
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      remoteBuild: true
+
+hooks:
+  postprovision:
+    shell: pwsh
+    run: ./scripts/foundry/ensure-agents.ps1
+

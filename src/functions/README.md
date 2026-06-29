@@ -1,8 +1,11 @@
-# Business Action Functions Placeholder
+# Business Action Tool (.NET v3)
 
-Suggested actions:
+Current runnable tool:
 
-- Get service request status
-- Get order status
-- Create escalation request
-- Register callback request
+- `ServiceRequestStatusTool` (reads `data/business-records/service-requests.json`)
+
+Future extension candidates:
+
+- order status
+- escalation creation
+- callback registration

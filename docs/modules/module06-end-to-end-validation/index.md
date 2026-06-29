@@ -12,6 +12,15 @@ Validate the full customer request automation journey.
 - Validation checklist
 - Demo narrative
 
+## Expected Chat Metadata (v3)
+
+Each `/api/chat` response should include:
+
+- `intent`
+- `toolCalled`
+- `toolName`
+- `correlationId`
+
 ## Expected Output
 
 At the end of this module, learners should have a concrete artifact that contributes to the final intelligent customer operations solution.

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Smart Call Center Console</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Foundry smart call center</p>
+          <h1>Call console</h1>
+          <p>Monitor ACS calls, Foundry agent responses, Search grounding, and post-call worker analytics.</p>
+        </div>
+        <div class="controls">
+          <label for="language">Test language</label>
+          <select id="language">
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="zh">中文</option>
+          </select>
+          <button id="simulate">Simulate local call</button>
+          <button id="seed">Seed knowledge</button>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Runtime configuration</h2>
+          <pre id="config">Loading...</pre>
+        </article>
+        <article class="panel large">
+          <h2>Calls</h2>
+          <p class="subtle">Click a call card to inspect live transcript updates.</p>
+          <div id="calls" class="cards"></div>
+        </article>
+      </section>
+
+      <section class="grid single">
+        <article class="panel large">
+          <h2>Live conversation history</h2>
+          <div id="liveCallMeta" class="subtle">Select a call to start live view.</div>
+          <div id="liveTranscript" class="timeline"></div>
+        </article>
+      </section>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

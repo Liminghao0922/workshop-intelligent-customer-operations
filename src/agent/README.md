@@ -1,3 +1,4 @@
-# Agent Integration Placeholder
+# Agent Adapter (.NET v3)
 
-Place helper code and integration notes for Azure AI Foundry Agent here.
+- `MockFoundryAgentAdapter` provides local runnable orchestration for four intents.
+- `IFoundryAgentAdapter` is the stable interface for swapping in real Azure AI Foundry integration in v4.

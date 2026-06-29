@@ -26,3 +26,11 @@ Define tool schemas that allow the agent to call backend business actions.
 ## Validation
 
 The agent should be able to decide when a tool call is needed.
+
+## v3 Artifact Location
+
+Tool schema is stored at:
+
+```text
+contracts/tool-schemas/get-service-request-status.json
+```

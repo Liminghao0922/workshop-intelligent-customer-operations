@@ -1,0 +1,50 @@
+@page "/sessions"
+@inject ApiClient ApiClient
+
+<PageTitle>Call Sessions</PageTitle>
+
+<h1>Call Sessions</h1>
+
+@if (sessions is null)
+{
+    <p>Loading sessions...</p>
+}
+else if (sessions.Count == 0)
+{
+    <p>No sessions found.</p>
+}
+else
+{
+    <table class="table table-hover table-sm">
+        <thead>
+            <tr>
+                <th>Call ID</th>
+                <th>Status</th>
+                <th>Language</th>
+                <th>Started</th>
+                <th>Ticket</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in sessions.OrderByDescending(x => x.StartedAt))
+            {
+                <tr>
+                    <td>@s.Id</td>
+                    <td>@s.Status</td>
+                    <td>@s.Language</td>
+                    <td>@s.StartedAt</td>
+                    <td>@(s.Ticket?.Id ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CallSessionView>? sessions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sessions = await ApiClient.GetSessionsAsync();
+    }
+}

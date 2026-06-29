@@ -1,8 +1,19 @@
-# Backend API Placeholder
+# Backend API (.NET v3)
 
-Suggested responsibilities:
+## Project
 
-- Receive frontend requests
-- Call Azure AI Foundry Agent
-- Route tool calls
-- Return customer-friendly responses
+```text
+src/api/CustomerOperations.Api
+```
+
+## Endpoints
+
+- `GET /health`
+- `POST /api/chat`
+- `POST /api/tools/service-request-status`
+
+## Run
+
+```powershell
+dotnet run --project .\src\api\CustomerOperations.Api\CustomerOperations.Api.csproj
+```
