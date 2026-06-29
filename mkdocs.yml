@@ -1,0 +1,100 @@
+site_name: Intelligent Customer Operations
+site_description: Build AI customer operations agents with Azure AI Foundry and Microsoft Fabric IQ
+site_author: Microsoft
+repo_name: workshop-intelligent-customer-operations
+repo_url: https://github.com/YOUR-ORG/workshop-intelligent-customer-operations
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.action.edit
+    - search.highlight
+    - search.suggest
+  palette:
+    - scheme: default
+      primary: blue
+      accent: blue
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Workshop:
+      - Overview: modules/module00-overview/index.md
+      - Prerequisites & Setup:
+          - Overview: modules/module01-environment-setup/index.md
+          - Exercise 1 - Azure Environment: modules/module01-environment-setup/exercise01-azure-environment.md
+          - Exercise 2 - Fabric Workspace: modules/module01-environment-setup/exercise02-fabric-workspace.md
+          - Exercise 3 - AI Foundry Project: modules/module01-environment-setup/exercise03-ai-foundry-project.md
+          - Summary: modules/module01-environment-setup/summary.md
+      - Knowledge Foundation with Fabric IQ:
+          - Overview: modules/module02-knowledge-foundation/index.md
+          - Exercise 1 - Prepare Data: modules/module02-knowledge-foundation/exercise01-prepare-data.md
+          - Exercise 2 - Configure Fabric IQ: modules/module02-knowledge-foundation/exercise02-configure-fabric-iq.md
+          - Exercise 3 - Validate Knowledge Answers: modules/module02-knowledge-foundation/exercise03-validate-knowledge.md
+          - Summary: modules/module02-knowledge-foundation/summary.md
+      - Build AI Agent with Azure AI Foundry:
+          - Overview: modules/module03-build-agent/index.md
+          - Exercise 1 - Create Agent: modules/module03-build-agent/exercise01-create-agent.md
+          - Exercise 2 - Configure Instructions: modules/module03-build-agent/exercise02-configure-instructions.md
+          - Exercise 3 - Connect Knowledge: modules/module03-build-agent/exercise03-connect-knowledge.md
+          - Summary: modules/module03-build-agent/summary.md
+      - Business Actions & Tool Calling:
+          - Overview: modules/module04-business-actions/index.md
+          - Exercise 1 - Business API: modules/module04-business-actions/exercise01-business-api.md
+          - Exercise 2 - Tool Definition: modules/module04-business-actions/exercise02-tool-definition.md
+          - Exercise 3 - Execute Actions: modules/module04-business-actions/exercise03-execute-actions.md
+          - Summary: modules/module04-business-actions/summary.md
+      - Deploy Customer Operations App:
+          - Overview: modules/module05-deploy-application/index.md
+          - Exercise 1 - Deploy Backend: modules/module05-deploy-application/exercise01-deploy-backend.md
+          - Exercise 2 - Deploy Frontend: modules/module05-deploy-application/exercise02-deploy-frontend.md
+          - Exercise 3 - Configure App Settings: modules/module05-deploy-application/exercise03-configure-app-settings.md
+          - Summary: modules/module05-deploy-application/summary.md
+      - End-to-End Validation:
+          - Overview: modules/module06-end-to-end-validation/index.md
+          - Scenario 1 - FAQ Request: modules/module06-end-to-end-validation/scenario01-faq-request.md
+          - Scenario 2 - Order Status: modules/module06-end-to-end-validation/scenario02-order-status.md
+          - Scenario 3 - Escalation: modules/module06-end-to-end-validation/scenario03-escalation.md
+          - Summary: modules/module06-end-to-end-validation/summary.md
+      - Multi-Agent Extension:
+          - Overview: modules/module07-multi-agent-extension/index.md
+          - Exercise 1 - Agent Roles: modules/module07-multi-agent-extension/exercise01-agent-roles.md
+          - Exercise 2 - Supervisor Flow: modules/module07-multi-agent-extension/exercise02-supervisor-flow.md
+          - Exercise 3 - Advanced Validation: modules/module07-multi-agent-extension/exercise03-advanced-validation.md
+          - Summary: modules/module07-multi-agent-extension/summary.md
+  - Architecture:
+      - Solution Architecture: architecture/solution-architecture.md
+      - Data Flow: architecture/data-flow.md
+      - Security & Governance: architecture/security-governance.md
+      - Deployment Topology: architecture/deployment-topology.md
+  - Resources:
+      - Prompt Assets: resources/prompt-assets.md
+      - Sample Data: resources/sample-data.md
+      - Troubleshooting: resources/troubleshooting.md
+      - FAQ: resources/faq.md
+  - Instructor Guide:
+      - Delivery Guide: instructor/delivery-guide.md
+      - Timing Guide: instructor/timing-guide.md
+      - Demo Script: instructor/demo-script.md

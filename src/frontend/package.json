@@ -1,0 +1,9 @@
+{
+  "name": "customer-operations-frontend-placeholder",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo Replace with frontend implementation",
+    "build": "echo Replace with build command"
+  }
+}
