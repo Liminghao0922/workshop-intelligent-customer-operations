@@ -13,6 +13,13 @@ Design specialized agents for customer operations.
 | Action Agent | Execute business actions |
 | Escalation Agent | Handle human handoff and review |
 
+## Guidance
+
+- Keep each role narrow and explainable
+- Avoid overlapping responsibility where possible
+- Use the supervisor to decide routing, not to do every task itself
+
 ## Validation
 
-Each agent should have a clear responsibility and boundary.
+- [ ] Each agent has a clear responsibility
+- [ ] Boundaries between agents are easy to explain

@@ -15,6 +15,14 @@ Supervisor Agent
   └─ Escalation Agent
 ```
 
+## Guidance
+
+- Route FAQ questions to knowledge first
+- Route requests with identifiers to action tools
+- Route risky or ambiguous requests to escalation
+
 ## Validation
 
-The routing design should reduce ambiguity and improve maintainability.
+- [ ] Routing logic is easy to explain
+- [ ] Knowledge, action, and escalation paths are distinct
+- [ ] Supervisor flow improves maintainability

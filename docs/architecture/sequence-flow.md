@@ -3,19 +3,20 @@
 ```mermaid
 sequenceDiagram
     participant Customer
-    participant WebApp
-    participant API
-    participant Agent
-    participant Knowledge as Fabric IQ / Mock Knowledge
-    participant Tool as Business Action Tool
+    participant Channel as ACS/Twilio
+    participant Gateway
+    participant Foundry as Foundry Agent
+    participant Knowledge as Azure AI Search
+    participant Ticket as Ticket/Dynamics
 
-    Customer->>WebApp: Submit request
-    WebApp->>API: POST /api/chat
-    API->>Agent: Send message
-    Agent->>Knowledge: Retrieve grounded knowledge
-    Agent->>Tool: Call action if needed
-    Tool-->>Agent: Return business result
-    Agent-->>API: Response + metadata
-    API-->>WebApp: Customer response
-    WebApp-->>Customer: Display result
+    Customer->>Channel: Start voice call
+    Channel->>Gateway: POST /api/channel/events
+    Gateway->>Foundry: Generate response
+    Foundry->>Knowledge: Retrieve grounded context
+    Foundry-->>Gateway: Reply + conversation state
+    Gateway-->>Channel: Callback response
+    Channel-->>Customer: Play response
+    Gateway->>Ticket: POST /api/foundry/tools/create-ticket (if escalation)
+    Gateway->>Gateway: POST /api/admin/analyze/{callId} (post-call)
+    Gateway-->>Customer: Resolution or handoff
 ```

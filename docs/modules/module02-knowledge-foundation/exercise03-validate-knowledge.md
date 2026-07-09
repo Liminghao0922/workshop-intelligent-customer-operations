@@ -2,7 +2,7 @@
 
 ## Objective
 
-Validate that the knowledge foundation can support realistic customer questions.
+Confirm the search index returns useful, grounded answers for customer-style questions.
 
 ## Example Questions
 
@@ -10,10 +10,12 @@ Validate that the knowledge foundation can support realistic customer questions.
 - How can I check repair status?
 - What information is required to create a service request?
 - When should a customer request be escalated?
+- Where can I find policy details for a refund request?
 
 ## Validation Checklist
 
-- [ ] Answer is grounded in workshop data
+- [ ] Answer comes from indexed workshop content
 - [ ] Answer is concise and customer-friendly
-- [ ] Answer includes escalation guidance when needed
+- [ ] Answer reflects the correct product or policy
+- [ ] Answer includes escalation guidance when appropriate
 - [ ] Answer does not fabricate missing information

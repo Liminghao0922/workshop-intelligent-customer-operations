@@ -1,6 +1,12 @@
 # Module 03 Summary
 
-You created an Azure AI Foundry Agent and connected it to enterprise knowledge.
+You created a Microsoft Foundry agent and connected it to the workshop knowledge source.
+
+## What You Now Have
+
+- A customer operations agent in Microsoft Foundry
+- Instruction rules for FAQ, clarification, and escalation
+- A knowledge connection ready for response generation
 
 ## Ready for Next Module
 

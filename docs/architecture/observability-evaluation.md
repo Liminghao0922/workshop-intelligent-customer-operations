@@ -1,28 +1,34 @@
-# Observability & Evaluation (Lightweight v3)
+# Observability & Evaluation (Aspire)
 
-## Correlation ID
+## Trace Key
 
-The backend assigns a `correlationId` for each `/api/chat` request and returns it in the response.
+Use `callId` as primary trace key. Track it across:
+
+- `POST /api/dev/simulate-call`
+- `GET /api/calls/{id}`
+- `POST /api/admin/analyze/{callId}`
+- ticket creation and escalation artifacts
 
 ## Minimum Logging
 
-- intent classification result
-- whether tool was called
-- tool name
-- correlation ID
+- provider event type and callback result
+- Foundry invocation result (source + conversation mapping)
+- `analyticsStatus` transition
+- ticket creation outcome (`ticket.id` or failure artifact)
+- call ID
 
 ## Response Evaluation Checklist
 
-- [ ] Response matches user intent
-- [ ] Tool called only when needed
-- [ ] Missing parameters trigger clarification
-- [ ] Escalation response is clear and safe
+- [ ] Call record created and updated correctly
+- [ ] Transcript grows with each turn
+- [ ] Escalation creates ticket only when needed
+- [ ] Post-call analysis written to `postCallResult`
 
 ## Demo Validation Table
 
-| Scenario | Expected Intent | Tool Called |
+| Scenario | Expected Call State | Expected Outcome |
 |---|---|---|
-| Warranty question | `faq_request` | No |
-| Service request status + ID | `service_request_status` | Yes |
-| Repair status without ID | `missing_information` | No |
-| Repeated unresolved issue | `escalation_request` | No |
+| Simulated inbound call | `status=active` then callback updates | transcript entries visible |
+| Escalation request | escalation decision true | ticket created |
+| Post-call analysis | `analyticsStatus=submitted` | `postCallResult` present |
+| Azure mode path | `source=foundry-agent-sdk` | real Foundry response |

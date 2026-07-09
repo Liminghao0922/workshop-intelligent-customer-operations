@@ -2,7 +2,7 @@
 
 ## Goal
 
-Deploy the sample frontend and backend application.
+Deploy the customer-facing app and connect it to the backend and agent services.
 
 ## Topics
 
@@ -14,12 +14,26 @@ Deploy the sample frontend and backend application.
 
 ## Expected Output
 
-At the end of this module, learners should have a concrete artifact that contributes to the final intelligent customer operations solution.
+By the end of this module, participants should have:
+
+- A running customer operations app
+- Backend and frontend connected
+- Environment settings configured
+- A smoke test that reaches the agent
+
+## Exit Criteria
+
+- [ ] Backend is reachable and healthy
+- [ ] Frontend loads successfully
+- [ ] App settings point to the correct endpoints
+- [ ] Smoke test returns a valid agent response
+- [ ] Ready to proceed to Module 06
 
 ## Module Checklist
 
 - [ ] Read module overview
-- [ ] Complete all exercises
-- [ ] Validate output
-- [ ] Record issues or questions
-- [ ] Confirm readiness for the next module
+- [ ] Complete Exercise 1 - Deploy Backend
+- [ ] Complete Exercise 2 - Deploy Frontend
+- [ ] Complete Exercise 3 - Configure Application Settings
+- [ ] Run a smoke test end-to-end
+- [ ] Proceed to Module 06

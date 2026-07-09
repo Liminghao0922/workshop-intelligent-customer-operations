@@ -1,6 +1,6 @@
 # Workshop - Intelligent Customer Operations
 
-Build an intelligent customer request automation solution using **Azure AI Foundry Agents** and **Microsoft Fabric IQ**.
+Build an intelligent customer request automation solution using **Microsoft Foundry Agents** and **Azure AI Search**.
 
 This repository is designed as both:
 
@@ -16,9 +16,9 @@ Customer Request
     ↓
 Customer Operations Web App
     ↓
-Azure AI Foundry Agent
+Microsoft Foundry Agent
     ↓
-Microsoft Fabric IQ / Enterprise Knowledge
+Azure AI Search / Enterprise Knowledge
     ↓
 Business APIs / Actions
     ↓
@@ -36,9 +36,9 @@ workshop-intelligent-customer-operations
 | Module | Name | Outcome |
 |---|---|---|
 | 00 | Workshop Overview | Understand business scenario and target architecture |
-| 01 | Prerequisites & Environment Setup | Prepare Azure, Fabric, Foundry, GitHub, and local tools |
-| 02 | Knowledge Foundation with Fabric IQ | Prepare enterprise data and knowledge grounding |
-| 03 | Build AI Agent with Azure AI Foundry | Create and test a customer operations agent |
+| 01 | Prerequisites & Environment Setup | Prepare Azure, search, Foundry, GitHub, and Cloud Shell access |
+| 02 | Knowledge Foundation with Azure AI Search | Prepare enterprise knowledge and search index |
+| 03 | Build AI Agent with Microsoft Foundry | Create and test a customer operations agent |
 | 04 | Business Actions & Tool Calling | Connect the agent to backend APIs / actions |
 | 05 | Deploy Customer Operations App | Deploy frontend, API, and agent integration |
 | 06 | End-to-End Validation | Validate request-to-resolution scenarios |
@@ -53,17 +53,17 @@ mkdocs serve
 
 Then open the local MkDocs URL shown in your terminal.
 
-## Local Runnable Demo (v3 .NET)
+## Cloud Shell Runnable Demo (Aspire)
 
 ```powershell
 .\scripts\setup-local.ps1
 .\scripts\run-api.ps1
 ```
 
-In a second terminal:
+Run both commands in **Azure Cloud Shell (PowerShell)**. In a second tab or after the API is ready:
 
 ```powershell
-.\scripts\run-demo.ps1
+.\scripts\run-demo.ps1 -GatewayBaseUrl http://localhost:61989
 ```
 
 Optional minimal web UI:
@@ -71,6 +71,24 @@ Optional minimal web UI:
 ```powershell
 .\scripts\run-frontend.ps1
 ```
+
+## Architecture Split (Locked)
+
+To avoid mixed priorities, this repo now follows two explicit lanes:
+
+1. **Workshop Demo Lane (Cloud Shell path)**
+   - Purpose: deterministic classroom/demo execution in Cloud Shell.
+   - Entry: `scripts/setup-local.ps1`, `scripts/run-api.ps1`, `scripts/run-demo.ps1`.
+   - Runtime: Aspire AppHost with workshop fallback where needed.
+   - Success criteria: reproducible call simulation and observable call artifacts.
+
+2. **Production Reference Lane (Azure-integrated path)**
+    - Purpose: customer-facing reference implementation for real cloud integration.
+    - Entry: `docs/deployment.md` + `azd` provisioning/deploy flow.
+    - Runtime: Microsoft Foundry/ACS/Search/Storage/Container Apps integrations.
+   - Success criteria: real resource-backed behavior, operational readiness, and security/compliance hardening.
+
+**Rule:** keep shared code in Aspire services; keep lane-specific behavior behind configuration and deployment profiles, not separate legacy folders.
 
 ## Publish to GitHub Pages
 
@@ -87,7 +105,7 @@ Source: GitHub Actions
 ```text
 workshop-intelligent-customer-operations-v2/
 ├── docs/                 # Learner portal content
-├── src/                  # Sample app and backend code placeholders
+├── src/                  # .NET Aspire solution (AppHost + services)
 ├── data/                 # Sample customer operations data
 ├── infra/                # Infrastructure-as-code placeholders
 ├── prompts/              # Agent instructions and prompt assets
@@ -99,3 +117,4 @@ workshop-intelligent-customer-operations-v2/
 ├── mkdocs.yml
 └── requirements.txt
 ```
+

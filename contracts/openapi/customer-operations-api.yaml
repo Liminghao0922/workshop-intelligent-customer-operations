@@ -1,33 +1,47 @@
 openapi: 3.0.3
 info:
-  title: Customer Operations API
-  version: 0.1.0
+  title: Customer Operations Gateway API
+  version: 0.2.0
 paths:
-  /health:
+  /healthz:
     get:
       summary: Health check
       responses:
         "200":
           description: Healthy
-  /api/chat:
-    post:
-      summary: Process customer request
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ChatRequest"
+  /api/calls:
+    get:
+      summary: List call sessions
       responses:
         "200":
-          description: Chat response
+          description: Call list
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ChatResponse"
-  /api/tools/service-request-status:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CallRecord"
+  /api/calls/{id}:
+    get:
+      summary: Get call session by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Call record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallRecord"
+        "404":
+          description: Call not found
+  /api/dev/simulate-call:
     post:
-      summary: Get service request status
+      summary: Simulate inbound call (local/demo)
       requestBody:
         required: true
         content:
@@ -35,34 +49,131 @@ paths:
             schema:
               type: object
               properties:
-                requestId:
+                language:
                   type: string
-              required: [requestId]
+                  enum: [en, ja, zh]
+              required: [language]
       responses:
         "200":
-          description: Status response
+          description: Simulated call record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallRecord"
+  /api/foundry/tools/create-ticket:
+    post:
+      summary: Create escalation ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketCreateRequest"
+      responses:
+        "200":
+          description: Created ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+  /api/admin/analyze/{callId}:
+    post:
+      summary: Submit post-call analysis job
+      parameters:
+        - in: path
+          name: callId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Analysis submission result
+          content:
+            application/json:
+              schema:
+                type: object
 components:
   schemas:
-    ChatRequest:
+    CallTurn:
       type: object
       properties:
-        message:
+        speaker:
           type: string
-        sessionId:
+        text:
           type: string
-      required: [message]
-    ChatResponse:
+        at:
+          type: string
+      required: [speaker, text, at]
+    Ticket:
       type: object
       properties:
-        response:
+        id:
           type: string
-        intent:
-          type: string
-        toolCalled:
-          type: boolean
-        toolName:
+        callId:
           type: string
           nullable: true
-        correlationId:
+        priority:
           type: string
-      required: [response, intent, toolCalled, correlationId]
+        reason:
+          type: string
+        summary:
+          type: string
+        createdAt:
+          type: string
+        status:
+          type: string
+      required: [id, priority, reason, summary, createdAt, status]
+    TicketCreateRequest:
+      type: object
+      properties:
+        callId:
+          type: string
+        reason:
+          type: string
+        summary:
+          type: string
+        priority:
+          type: string
+      required: [reason, summary]
+    CallRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        language:
+          type: string
+        customerPhoneNumber:
+          type: string
+        acsCallConnectionId:
+          type: string
+        recordingId:
+          type: string
+          nullable: true
+        recordingState:
+          type: string
+          nullable: true
+        startedAt:
+          type: string
+        updatedAt:
+          type: string
+        completedAt:
+          type: string
+          nullable: true
+        transcript:
+          type: array
+          items:
+            $ref: "#/components/schemas/CallTurn"
+        analyticsStatus:
+          type: string
+        ticket:
+          $ref: "#/components/schemas/Ticket"
+        postCallResult:
+          type: object
+          nullable: true
+          additionalProperties: true
+        foundryConversationId:
+          type: string
+          nullable: true
+      required: [id, status, language, customerPhoneNumber, acsCallConnectionId, startedAt, updatedAt, transcript, analyticsStatus]

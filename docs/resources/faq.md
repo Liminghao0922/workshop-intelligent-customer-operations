@@ -1,8 +1,8 @@
 # FAQ
 
-## Why use Fabric IQ for the knowledge layer?
+## Why use Azure AI Search for the knowledge layer?
 
-This workshop positions Fabric as the enterprise data and knowledge foundation, while Azure AI Foundry Agent handles reasoning, orchestration, and actions.
+This workshop uses Azure AI Search as the enterprise knowledge foundation because it provides sub-second vector and hybrid search responses with no cold-start latency. This makes it suitable for real-time agent calls in both workshop and production scenarios. Microsoft Foundry Agent handles reasoning, orchestration, and actions on top of the search results.
 
 ## Why call this Customer Operations instead of Call Center?
 

@@ -1,16 +1,19 @@
-# Exercise 3 - Connect Fabric Knowledge
+# Exercise 3 - Connect Knowledge
 
 ## Objective
 
-Connect the agent to the Fabric-powered knowledge foundation.
+Connect the agent to the Azure AI Search knowledge foundation.
 
 ## Tasks
 
-1. Configure the knowledge connection.
+1. Configure the search endpoint and index connection.
 2. Test product FAQ questions.
 3. Test support policy questions.
 4. Validate grounded responses.
 
 ## Validation
 
-The agent should answer customer questions using the prepared knowledge source.
+- [ ] Agent answers use indexed workshop content
+- [ ] FAQ questions return grounded responses
+- [ ] Policy questions return accurate responses
+- [ ] The agent does not rely on invented facts

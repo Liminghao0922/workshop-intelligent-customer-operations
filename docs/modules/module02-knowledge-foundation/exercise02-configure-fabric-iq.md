@@ -1,20 +1,35 @@
-# Exercise 2 - Configure Fabric IQ
+# Exercise 2 - Configure Azure AI Search
 
 ## Objective
 
-Configure Fabric IQ as the knowledge layer for the customer operations agent.
+Configure Azure AI Search as the knowledge layer for the customer operations agent.
 
 ## Tasks
 
-1. Load prepared data into Fabric.
-2. Configure the knowledge experience for support documents.
-3. Validate that important customer questions can be answered from the data.
-4. Capture endpoint or connection details needed by the agent.
+1. Create an Azure AI Search service in your resource group.
+2. Create an index with the recommended schema for knowledge documents.
+3. Upload support documents (FAQ, policy, troubleshooting guides) to the index.
+4. Test at least one search query to confirm documents are retrievable.
+5. Record the search endpoint, index name, and API key for agent configuration.
+
+## Recommended Index Schema
+
+| Field | Type | Purpose |
+|---|---|---|
+| `id` | string (key) | Unique document identifier |
+| `title` | string | Document title |
+| `content` | string | Full document text (searchable) |
+| `category` | string | Document category (FAQ / policy / guide) |
+| `content_vector` | Collection(Single) | Vector embedding for semantic search |
 
 ## Design Note
 
-In this workshop, the knowledge layer is intentionally described as **Knowledge Foundation** rather than only **RAG**, because the business value is grounded customer operations, not just retrieval.
+In this workshop, the knowledge layer is described as **Knowledge Foundation** because the business value is grounded customer operations, not just retrieval. Azure AI Search is the delivery mechanism — the goal is that the agent answers customer questions from real enterprise content.
 
 ## Validation
 
-Fabric should be able to provide grounded answers from the prepared support knowledge.
+The search index should be able to return relevant content for customer support questions such as:
+
+- "What is the warranty period for product X?"
+- "How do I register a support request?"
+- "What is the return policy?"

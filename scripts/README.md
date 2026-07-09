@@ -2,9 +2,14 @@
 
 Utility scripts for setup, validation, and cleanup.
 
-## v3 Local Demo Scripts
+## Aspire Local Demo Scripts
 
-- `setup-local.ps1` - checks tools and installs dependencies
-- `run-api.ps1` - starts ASP.NET Core API
-- `run-frontend.ps1` - starts minimal web UI
-- `run-demo.ps1` - runs E2E prompt set against local API
+- `setup-local.ps1` - checks tools, restores Aspire solution, installs docs dependencies
+- `run-api.ps1` - starts Aspire AppHost (gateway + api + portal + worker)
+- `run-frontend.ps1` - starts portal project only (standalone)
+- `run-demo.ps1` - runs call simulation against Gateway endpoints
+
+## Foundry Validation Scripts
+
+- `foundry/ensure-agents.ps1` - ensures Foundry agents exist and writes IDs to azd env
+- `foundry/validate-azure-mode.ps1` - validates non-mock azure mode runtime path through Gateway endpoints

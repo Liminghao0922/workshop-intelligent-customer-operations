@@ -1,5 +1,5 @@
 site_name: Intelligent Customer Operations
-site_description: Build AI customer operations agents with Azure AI Foundry and Microsoft Fabric IQ
+site_description: Build AI customer operations agents with Microsoft Foundry and Azure AI Search
 site_author: Microsoft
 repo_name: workshop-intelligent-customer-operations
 repo_url: https://github.com/YOUR-ORG/workshop-intelligent-customer-operations
@@ -45,16 +45,16 @@ nav:
       - Prerequisites & Setup:
           - Overview: modules/module01-environment-setup/index.md
           - Exercise 1 - Azure Environment: modules/module01-environment-setup/exercise01-azure-environment.md
-          - Exercise 2 - Fabric Workspace: modules/module01-environment-setup/exercise02-fabric-workspace.md
+          - Exercise 2 - Azure AI Search Service: modules/module01-environment-setup/exercise02-azure-ai-search-service.md
           - Exercise 3 - AI Foundry Project: modules/module01-environment-setup/exercise03-ai-foundry-project.md
           - Summary: modules/module01-environment-setup/summary.md
-      - Knowledge Foundation with Fabric IQ:
+      - Knowledge Foundation with Azure AI Search:
           - Overview: modules/module02-knowledge-foundation/index.md
           - Exercise 1 - Prepare Data: modules/module02-knowledge-foundation/exercise01-prepare-data.md
-          - Exercise 2 - Configure Fabric IQ: modules/module02-knowledge-foundation/exercise02-configure-fabric-iq.md
+          - Exercise 2 - Configure Azure AI Search: modules/module02-knowledge-foundation/exercise02-configure-fabric-iq.md
           - Exercise 3 - Validate Knowledge Answers: modules/module02-knowledge-foundation/exercise03-validate-knowledge.md
           - Summary: modules/module02-knowledge-foundation/summary.md
-      - Build AI Agent with Azure AI Foundry:
+      - Build AI Agent with Microsoft Foundry:
           - Overview: modules/module03-build-agent/index.md
           - Exercise 1 - Create Agent: modules/module03-build-agent/exercise01-create-agent.md
           - Exercise 2 - Configure Instructions: modules/module03-build-agent/exercise02-configure-instructions.md

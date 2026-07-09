@@ -11,6 +11,15 @@ Deploy the customer-facing web application.
 - Show action status
 - Show escalation message when needed
 
+## Tasks
+
+1. Start the frontend or deploy it to the target host.
+2. Confirm the app loads in a browser.
+3. Confirm it can reach the backend service.
+4. Verify the response area updates after a test request.
+
 ## Validation
 
-The frontend should be accessible and connected to the backend.
+- [ ] Frontend loads successfully
+- [ ] Frontend can call the backend
+- [ ] Agent response is displayed to the user

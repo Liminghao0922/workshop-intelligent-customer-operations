@@ -11,7 +11,7 @@ Customer question
   ↓
 Agent understands intent
   ↓
-Agent retrieves answer from Fabric IQ knowledge
+Agent retrieves answer from Azure AI Search knowledge
   ↓
 Agent returns grounded response
 ```
@@ -21,3 +21,5 @@ Agent returns grounded response
 - [ ] Response uses knowledge data
 - [ ] No tool call is needed
 - [ ] Response is concise and useful
+- [ ] Response is customer-friendly
+- [ ] Response does not invent policy details

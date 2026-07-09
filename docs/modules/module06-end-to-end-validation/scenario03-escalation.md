@@ -21,3 +21,5 @@ Customer receives clear guidance
 - [ ] Agent does not overpromise
 - [ ] Escalation criteria are followed
 - [ ] Customer receives next-step guidance
+- [ ] Handoff message is clear and respectful
+- [ ] No unsupported resolution is claimed

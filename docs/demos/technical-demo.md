@@ -2,15 +2,19 @@
 
 ## Objective
 
-Show a minimum runnable architecture with clear extension points for real Foundry and Fabric IQ.
+Show Aspire runnable architecture with Gateway, Portal, and post-call worker.
 
 ## Flow
 
-1. Call `/health`.
-2. Call `/api/chat` with four scenarios.
-3. Inspect `intent`, `toolCalled`, `toolName`, and `correlationId`.
-4. Call `/api/tools/service-request-status` directly.
+1. Call `/healthz`.
+2. Call `/api/dev/simulate-call` for `en`, `ja`, `zh`.
+3. Query `/api/calls` and inspect transcript + state.
+4. Trigger `/api/admin/analyze/{callId}` and inspect post-call artifact.
+5. Optionally call `/api/foundry/tools/create-ticket`.
 
 ## Expected Outcome
 
-Audience understands how mock adapters can be swapped with real Azure integrations in v4.
+Audience understands single Aspire codepath supports:
+
+- local fallback mode for workshop/demo
+- Azure-integrated mode for real Foundry/Search/Dynamics

@@ -7,7 +7,7 @@ Resource Group
 ├── Customer Operations Frontend
 ├── Backend API
 ├── Business Action Functions
-├── Azure AI Foundry Project
+├── Microsoft Foundry Project
 ├── Fabric Workspace
 └── Monitoring / Logs
 ```

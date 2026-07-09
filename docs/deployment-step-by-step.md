@@ -18,8 +18,8 @@
 - Key Vault
 - Container Registry
 - Azure Communication Services（ACS）资源主体
-- Azure AI Foundry Account（AIServices）
-- Azure AI Foundry Project
+- Microsoft Foundry Account（AIServices）
+- Microsoft Foundry Project
 
 注意：
 
@@ -46,25 +46,23 @@
 
 - 可用 Azure 订阅
 - 该订阅至少 Contributor 权限（推荐 Owner，避免 RBAC 赋权失败）
-- 本机已安装：
-  - Azure CLI (`az`)
-  - Azure Developer CLI (`azd`)
-  - Docker Desktop（用于构建和推送镜像）
+- Azure Cloud Shell 可用，且已具备 Azure CLI (`az`) 与 Azure Developer CLI (`azd`)。
+- 如需本地镜像构建/推送，另行准备 Docker；本步骤默认不要求本机安装。
 
 可选（用于完整电话流程）：
 
 - Azure Communication Services (ACS) 可用连接串
 - Foundry Agent 与模型可用配置
 
-### 1.2 打开终端并切到项目根目录
+### 1.2 打开 Azure Cloud Shell 并切到项目根目录
 
-在 PowerShell 中执行：
+在 Azure Cloud Shell (PowerShell) 中执行：
 
 ```powershell
-cd c:\work\Panasonic\smart-call-center-quiz
+cd $HOME\clouddrive\smart-call-center-quiz
 ```
 
-### 1.3 登录 Azure CLI 和 azd
+### 1.3 登录 Azure CLI 和 azd（Cloud Shell）
 
 ```powershell
 az login

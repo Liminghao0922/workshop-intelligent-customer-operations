@@ -6,12 +6,13 @@ Validate advanced multi-agent scenarios.
 
 ## Scenarios
 
-- Request contains both knowledge and action needs.
-- Request requires escalation after failed action.
-- Request needs clarification before execution.
+- Request contains both knowledge and action needs
+- Request requires escalation after failed action
+- Request needs clarification before execution
 
 ## Validation
 
 - [ ] Specialized agent boundaries are respected
 - [ ] Supervisor routing is explainable
 - [ ] Customer response remains consistent
+- [ ] Extension stays optional, not required for workshop core

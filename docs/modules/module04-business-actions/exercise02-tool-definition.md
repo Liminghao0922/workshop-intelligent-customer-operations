@@ -23,14 +23,15 @@ Define tool schemas that allow the agent to call backend business actions.
 }
 ```
 
+## Recommended Tool Set
+
+- `getServiceRequestStatus`
+- `getOrderStatus`
+- `createEscalationRequest`
+- `registerCallbackRequest`
+
 ## Validation
 
-The agent should be able to decide when a tool call is needed.
-
-## v3 Artifact Location
-
-Tool schema is stored at:
-
-```text
-contracts/tool-schemas/get-service-request-status.json
-```
+- [ ] Tool schema matches backend API inputs
+- [ ] Agent can decide when a tool call is needed
+- [ ] Tool names are clear and action-oriented

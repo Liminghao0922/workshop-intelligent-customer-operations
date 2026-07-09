@@ -2,14 +2,14 @@
 
 ## 推奨設計
 
-参考実装は Azure AI Foundry を中心に構成します。ACS が電話連携を担当し、Voice Live API がリアルタイム音声対話を処理し、Foundry Agent が会話ポリシーを管理します。Azure AI Search は回答の grounding を提供し、イベント駆動の Azure Function が通話後分析を非同期に実行します。
+参考実装は Microsoft Foundry を中心に構成します。ACS が電話連携を担当し、Voice Live API がリアルタイム音声対話を処理し、Foundry Agent が会話ポリシーを管理します。Azure AI Search は回答の grounding を提供し、イベント駆動の Azure Function が通話後分析を非同期に実行します。
 
 ```mermaid
 flowchart LR
   Caller[顧客の通話] --> ACS[Azure Communication Services<br/>電話番号 / direct routing]
   ACS --> Gateway[通話ゲートウェイ<br/>Azure Container Apps]
   Gateway <--> VoiceLive[Voice Live API]
-  VoiceLive <--> Agent[Azure AI Foundry Agent]
+  VoiceLive <--> Agent[Microsoft Foundry Agent]
   Agent <--> Models[Foundry Models<br/>リアルタイム + 分析モデル]
   Agent --> Tools[Function tools<br/>チケットとエスカレーション]
   Agent --> SearchTool[Azure AI Search tool<br/>Foundry project connection]
@@ -43,7 +43,7 @@ flowchart LR
 | --- | --- |
 | 電話連携 | Azure Communication Services |
 | リアルタイム音声対音声 | Voice Live API |
-| 会話オーケストレーション | Azure AI Foundry Agent |
+| 会話オーケストレーション | Microsoft Foundry Agent |
 | モデルアクセス | Foundry Models |
 | ナレッジ grounding | Foundry に接続された Azure AI Search tool |
 | アプリホスティング | Azure Container Apps |

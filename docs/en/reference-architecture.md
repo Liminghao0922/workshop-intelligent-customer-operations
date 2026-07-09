@@ -2,14 +2,14 @@
 
 ## Recommended design
 
-The reference implementation is centered on Azure AI Foundry. ACS handles phone integration, Voice Live API handles real-time speech interaction, a Foundry Agent owns the conversation policy, Azure AI Search grounds answers, and an event-driven Azure Function runs post-call analytics asynchronously.
+The reference implementation is centered on Microsoft Foundry. ACS handles phone integration, Voice Live API handles real-time speech interaction, a Foundry Agent owns the conversation policy, Azure AI Search grounds answers, and an event-driven Azure Function runs post-call analytics asynchronously.
 
 ```mermaid
 flowchart LR
   Caller[Customer caller] --> ACS[Azure Communication Services<br/>phone number / direct routing]
   ACS --> Gateway[Call gateway<br/>Azure Container Apps]
   Gateway <--> VoiceLive[Voice Live API]
-  VoiceLive <--> Agent[Azure AI Foundry Agent]
+  VoiceLive <--> Agent[Microsoft Foundry Agent]
   Agent <--> Models[Foundry Models<br/>realtime + analytics models]
   Agent --> Tools[Function tools<br/>ticket and escalation actions]
   Agent --> SearchTool[Azure AI Search tool<br/>Foundry project connection]
@@ -43,7 +43,7 @@ flowchart LR
 | --- | --- |
 | Phone integration | Azure Communication Services |
 | Real-time speech-to-speech | Voice Live API |
-| Conversation orchestration | Azure AI Foundry Agent |
+| Conversation orchestration | Microsoft Foundry Agent |
 | Model access | Foundry Models |
 | Knowledge grounding | Azure AI Search tool connected to Foundry |
 | App hosting | Azure Container Apps |

@@ -2,14 +2,14 @@
 
 ## 推荐设计
 
-参考实现以 Azure AI Foundry 为中心。ACS 负责电话接入，Voice Live API 负责实时语音交互，Foundry Agent 负责对话策略，Azure AI Search 为回答提供知识 grounding，由事件驱动的 Azure Function 异步执行通话后分析。
+参考实现以 Microsoft Foundry 为中心。ACS 负责电话接入，Voice Live API 负责实时语音交互，Foundry Agent 负责对话策略，Azure AI Search 为回答提供知识 grounding，由事件驱动的 Azure Function 异步执行通话后分析。
 
 ```mermaid
 flowchart LR
   Caller[客户来电] --> ACS[Azure Communication Services<br/>电话号码 / direct routing]
   ACS --> Gateway[通话网关<br/>Azure Container Apps]
   Gateway <--> VoiceLive[Voice Live API]
-  VoiceLive <--> Agent[Azure AI Foundry Agent]
+  VoiceLive <--> Agent[Microsoft Foundry Agent]
   Agent <--> Models[Foundry Models<br/>实时和分析模型]
   Agent --> Tools[Function tools<br/>工单和升级动作]
   Agent --> SearchTool[Azure AI Search tool<br/>Foundry project connection]
@@ -43,7 +43,7 @@ flowchart LR
 | --- | --- |
 | 电话接入 | Azure Communication Services |
 | 实时语音到语音 | Voice Live API |
-| 对话编排 | Azure AI Foundry Agent |
+| 对话编排 | Microsoft Foundry Agent |
 | 模型访问 | Foundry Models |
 | 知识 grounding | 连接到 Foundry 的 Azure AI Search tool |
 | 应用托管 | Azure Container Apps |

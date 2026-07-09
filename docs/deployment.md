@@ -1,16 +1,27 @@
 # Deploy the Foundry-based smart call center (.NET Aspire + event-driven Functions)
 
-This app is designed for a production-like POC using Azure AI Foundry, Azure Communication Services, Voice Live API, Azure AI Search, and event-driven Azure Functions hosted with Azure Container Apps.
+This app is designed for a production-like POC using Microsoft Foundry, Azure Communication Services, Voice Live API, Azure AI Search, and event-driven Azure Functions hosted with Azure Container Apps.
+
+## Architecture split policy
+
+This repository uses a dual-lane model:
+
+- **Workshop Demo Lane:** local deterministic run path for enablement/workshop delivery.
+- **Production Reference Lane:** Azure-integrated deployment path for customer-facing reference implementation.
+
+For this deployment document, treat all steps as **Production Reference Lane** scope.
+Do not reintroduce separate legacy runtime folders for demo vs production; use Aspire services plus environment/profile-based behavior.
 
 ## Prerequisites
 
 - Azure subscription with permission to create resources and assign RBAC roles.
-- Azure Developer CLI.
-- Azure CLI.
+- Azure Cloud Shell (PowerShell) with Azure CLI and Azure Developer CLI available.
 - ACS phone number or direct routing configuration.
 - Foundry/Voice Live model availability in the target region.
 
 ## Provision and deploy
+
+Run the commands below in **Azure Cloud Shell (PowerShell)**:
 
 ```powershell
 azd auth login
@@ -49,8 +60,15 @@ After deployment, configure these values if they were not provisioned automatica
    - Instructions for English, Japanese, and Chinese support.
 5. If model deployment was skipped, set model variables and rerun `azd provision`.
 6. Place a test call and verify live call state, transcript, handoff, persisted artifacts, and post-call analytics.
+7. Run azure-mode validation script after gateway is reachable:
+
+```powershell
+.\scripts\foundry\validate-azure-mode.ps1 -GatewayBaseUrl "<WEB_URL>"
+```
 
 ## Local development
+
+Optional, if you want to run the Aspire app from the same Cloud Shell session:
 
 ```powershell
 dotnet run --project src/aspire/IntelligentCustomerOperations.AppHost

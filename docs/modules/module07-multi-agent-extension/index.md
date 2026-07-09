@@ -2,7 +2,7 @@
 
 ## Goal
 
-Extend the solution into multiple specialized agents.
+Extend the solution into multiple specialized agents for more advanced customer operations scenarios.
 
 ## Topics
 
@@ -14,12 +14,19 @@ Extend the solution into multiple specialized agents.
 
 ## Expected Output
 
-At the end of this module, learners should have a concrete artifact that contributes to the final intelligent customer operations solution.
+By the end of this module, participants should understand how the single-agent workshop could evolve into a multi-agent pattern.
+
+## Exit Criteria
+
+- [ ] Agent roles are clearly separated
+- [ ] Supervisor routing is understandable
+- [ ] Escalation remains explicit
+- [ ] Advanced scenarios are documented
 
 ## Module Checklist
 
 - [ ] Read module overview
-- [ ] Complete all exercises
-- [ ] Validate output
-- [ ] Record issues or questions
-- [ ] Confirm readiness for the next module
+- [ ] Complete Exercise 1 - Design Agent Roles
+- [ ] Complete Exercise 2 - Supervisor Flow
+- [ ] Complete Exercise 3 - Advanced Validation
+- [ ] Capture future expansion ideas

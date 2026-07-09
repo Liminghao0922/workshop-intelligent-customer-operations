@@ -18,3 +18,4 @@ Test the agent with business action scenarios.
 - [ ] Required parameters are collected
 - [ ] Response is customer-friendly
 - [ ] Errors are handled gracefully
+- [ ] Escalation is used when the request cannot be completed

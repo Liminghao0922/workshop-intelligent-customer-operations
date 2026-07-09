@@ -2,7 +2,7 @@
 
 ## Goal
 
-Validate the full customer request automation journey.
+Validate the full customer request automation journey from first question to final resolution or escalation.
 
 ## Topics
 
@@ -12,23 +12,39 @@ Validate the full customer request automation journey.
 - Validation checklist
 - Demo narrative
 
-## Expected Chat Metadata (v3)
+## Expected Call Metadata (Aspire)
 
-Each `/api/chat` response should include:
+Each `GET /api/calls/{id}` response should include:
 
-- `intent`
-- `toolCalled`
-- `toolName`
-- `correlationId`
+- `id`
+- `status`
+- `language`
+- `analyticsStatus`
+- `ticket` (if escalated)
+- `postCallResult` (after analyze step)
 
 ## Expected Output
 
-At the end of this module, learners should have a concrete artifact that contributes to the final intelligent customer operations solution.
+By the end of this module, participants should have:
+
+- A tested request-to-resolution flow
+- At least one grounded FAQ scenario
+- At least one business action scenario
+- At least one escalation scenario
+
+## Exit Criteria
+
+- [ ] FAQ scenario returns grounded answers
+- [ ] Status lookup scenario triggers a tool call correctly
+- [ ] Escalation scenario produces a clear handoff outcome
+- [ ] Call metadata contains expected fields
+- [ ] Ready to proceed to Module 07
 
 ## Module Checklist
 
 - [ ] Read module overview
-- [ ] Complete all exercises
-- [ ] Validate output
-- [ ] Record issues or questions
-- [ ] Confirm readiness for the next module
+- [ ] Complete Scenario 1 - FAQ Request
+- [ ] Complete Scenario 2 - Order or Service Request Status
+- [ ] Complete Scenario 3 - Escalation
+- [ ] Verify call metadata in the response
+- [ ] Proceed to Module 07

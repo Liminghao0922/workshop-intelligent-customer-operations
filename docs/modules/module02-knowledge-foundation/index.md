@@ -1,30 +1,66 @@
-# Module 02 - Knowledge Foundation with Fabric IQ
+# Module 02 - Knowledge Foundation with Azure AI Search
 
 ## Goal
 
-Prepare enterprise knowledge so the agent can answer grounded customer questions.
+Build a fast, grounded knowledge layer so the customer operations agent can answer support questions with real enterprise content.
+
+## Why Azure AI Search
+
+Fabric-style query engines can be powerful, but first-query latency and cold-start behavior make them a poor fit for real-time agent calls. Azure AI Search gives the workshop a simpler path:
+
+- Fast vector and hybrid retrieval
+- No cold-start delay for the first customer question
+- Direct integration with Microsoft Foundry
+- Easy upload of FAQ, policy, and support documents
 
 ## Topics
 
-- Sample support documents
-- Product FAQ and policy data
-- Fabric workspace preparation
-- Fabric IQ configuration
-- Knowledge validation
+- Prepare knowledge documents for indexing
+- Create and configure an Azure AI Search index
+- Connect the index to the agent as a knowledge source
+- Validate grounded answers with customer-style questions
 
-## v3 Implementation Note
+## What to Index
 
-For local demo, this module uses `MockFabricIqAdapter` in `src/knowledge/`.
-The adapter is a stable extension point for future real Fabric IQ integration.
+Recommended starter content:
+
+- Product FAQ
+- Support policy docs
+- Troubleshooting guide
+- Warranty and service terms
+- Service request examples
+
+## Implementation Note
+
+The knowledge path in this workshop uses `SearchKnowledgeClient`:
+
+```text
+src/aspire/IntelligentCustomerOperations.Gateway/Services/SearchKnowledgeClient.cs
+```
+
+In azure mode, it queries Azure AI Search. In local/mock mode, it falls back to static workshop content.
 
 ## Expected Output
 
-At the end of this module, learners should have a concrete artifact that contributes to the final intelligent customer operations solution.
+By the end of this module, participants should have:
+
+- An Azure AI Search index populated with support content
+- A set of sample questions that return grounded answers
+- Search endpoint, index name, and key recorded for Module 03
+
+## Exit Criteria
+
+- [ ] Knowledge documents prepared and uploaded
+- [ ] Azure AI Search index configured
+- [ ] At least one FAQ-style query returns a grounded answer
+- [ ] Search connection values recorded for the agent module
+- [ ] Ready to proceed to Module 03
 
 ## Module Checklist
 
 - [ ] Read module overview
-- [ ] Complete all exercises
-- [ ] Validate output
-- [ ] Record issues or questions
-- [ ] Confirm readiness for the next module
+- [ ] Complete Exercise 1 - Prepare Enterprise Knowledge Data
+- [ ] Complete Exercise 2 - Configure Azure AI Search
+- [ ] Complete Exercise 3 - Validate Knowledge Answers
+- [ ] Record any missing content or gaps
+- [ ] Proceed to Module 03

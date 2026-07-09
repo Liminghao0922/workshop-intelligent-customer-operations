@@ -21,3 +21,5 @@ Agent summarizes status
 - [ ] Agent collects required information
 - [ ] Tool call is executed
 - [ ] Response includes clear next step
+- [ ] Response summarizes the status clearly
+- [ ] Error path is handled if the ID is invalid

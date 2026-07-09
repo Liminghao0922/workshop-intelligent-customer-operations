@@ -1,9 +1,0 @@
-{
-  "name": "customer-operations-frontend-minimal",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "python -m http.server 4173",
-    "build": "echo No build step for static demo UI"
-  }
-}

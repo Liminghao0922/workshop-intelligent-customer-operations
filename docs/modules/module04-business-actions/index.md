@@ -6,7 +6,7 @@ Enable the agent to perform business operations through APIs and tools.
 
 ## Topics
 
-- Action scenarios
+- Customer action scenarios
 - Business API design
 - Tool definition
 - Agent action execution
@@ -14,12 +14,25 @@ Enable the agent to perform business operations through APIs and tools.
 
 ## Expected Output
 
-At the end of this module, learners should have a concrete artifact that contributes to the final intelligent customer operations solution.
+By the end of this module, participants should have:
+
+- A predictable business API for workshop scenarios
+- Tool definitions the agent can call
+- A working action flow for status checks and escalation
+
+## Exit Criteria
+
+- [ ] Business API responds with predictable JSON
+- [ ] Tool schema matches the API contract
+- [ ] Agent can decide when a tool call is needed
+- [ ] Errors and missing data are handled cleanly
+- [ ] Ready to proceed to Module 05
 
 ## Module Checklist
 
 - [ ] Read module overview
-- [ ] Complete all exercises
-- [ ] Validate output
-- [ ] Record issues or questions
-- [ ] Confirm readiness for the next module
+- [ ] Complete Exercise 1 - Prepare Business API
+- [ ] Complete Exercise 2 - Define Agent Tools
+- [ ] Complete Exercise 3 - Execute Business Actions
+- [ ] Validate at least one status-check and one escalation path
+- [ ] Proceed to Module 05

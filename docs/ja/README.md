@@ -8,7 +8,7 @@
 2. 機能要件と非機能要件を満たすアーキテクチャ図を作成してもらいます。
 3. [rubric.md](rubric.md) で採点します。
 4. [reference-architecture.md](reference-architecture.md) を使って講師が解説します。
-5. 最後に [demo-guide.md](demo-guide.md) に従ってローカルデモを実行します。
+5. 最後に [demo-guide.md](demo-guide.md) に従って Cloud Shell デモを実行します。
 
 ## 期待するアーキテクチャのテーマ
 
