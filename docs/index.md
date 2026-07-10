@@ -21,7 +21,7 @@ The solution will use:
 - **Knowledge Agent** for grounded, multilingual answers during the call.
 - **Azure Communication Services** for the voice channel.
 - **Call Analysis Agent** for structured post-call review.
-- **Azure Functions and Storage Queue** for event-driven processing.
+- **Azure Functions and Event Hubs** for event-driven processing.
 - **Dynamics 365 Customer Service** for cases requiring follow-up.
 
 ## Learning Path
@@ -44,8 +44,8 @@ flowchart LR
   ACS --> Gateway[Voice Gateway]
   Gateway --> Knowledge[Knowledge Agent]
   Knowledge --> Search[Azure AI Search]
-  ACS -->|Call ended| Queue[Storage Queue]
-  Queue --> Function[Azure Function]
+  ACS -->|Call ended| EventHub[Azure Event Hubs]
+  EventHub --> Function[Azure Function]
   Function --> Analysis[Call Analysis Agent]
   Analysis --> Decision{Follow-up required?}
   Decision -->|Yes| Dynamics[Dynamics 365 Case]

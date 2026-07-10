@@ -42,7 +42,7 @@ public sealed class AppConfig
         Search = new SearchConfig
         {
             Endpoint = Env("AZURE_SEARCH_ENDPOINT", ""),
-            IndexName = Env("AZURE_SEARCH_INDEX_NAME", "call-center-knowledge"),
+            IndexName = Env("AZURE_SEARCH_INDEX_NAME", "customer-operations-knowledge"),
             ApiKey = Env("AZURE_SEARCH_API_KEY", "")
         },
         Storage = new StorageConfig
@@ -53,9 +53,9 @@ public sealed class AppConfig
         },
         PostCall = new PostCallConfig
         {
-            Endpoint = Env("POST_CALL_ANALYTICS_ENDPOINT", ""),
-            Key = Env("POST_CALL_ANALYTICS_KEY", ""),
-            QueueName = Env("POST_CALL_QUEUE_NAME", "post-call-jobs")
+            ConnectionString = Env("POST_CALL_EVENT_HUB_CONNECTION_STRING", ""),
+            FullyQualifiedNamespace = Env("POST_CALL_EVENT_HUB_FULLY_QUALIFIED_NAMESPACE", ""),
+            EventHubName = Env("POST_CALL_EVENT_HUB_NAME", "call-ended")
         },
         Callback = new CallbackConfig
         {
@@ -125,7 +125,7 @@ public sealed class FoundryConfig
 public sealed class SearchConfig
 {
     public string Endpoint { get; init; } = "";
-    public string IndexName { get; init; } = "call-center-knowledge";
+    public string IndexName { get; init; } = "customer-operations-knowledge";
     public string ApiKey { get; init; } = "";
 }
 
@@ -138,9 +138,9 @@ public sealed class StorageConfig
 
 public sealed class PostCallConfig
 {
-    public string Endpoint { get; init; } = "";
-    public string Key { get; init; } = "";
-    public string QueueName { get; init; } = "post-call-jobs";
+    public string ConnectionString { get; init; } = "";
+    public string FullyQualifiedNamespace { get; init; } = "";
+    public string EventHubName { get; init; } = "call-ended";
 }
 
 public sealed class CallbackConfig

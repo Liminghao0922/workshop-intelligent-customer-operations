@@ -9,8 +9,8 @@ Turn a completed call into a durable event, analyze its masked transcript with a
 ```mermaid
 flowchart LR
     End[CallDisconnected] --> Gateway[Voice Gateway]
-    Gateway --> Queue[Storage Queue]
-    Queue --> Function[Queue-trigger Function]
+    Gateway --> EventHub[Azure Event Hubs]
+    EventHub --> Function[Event Hub-trigger Function]
     Function --> Mask[PII masking]
     Mask --> Agent[Call Analysis Agent]
     Agent --> Validate[Schema and policy validation]
@@ -28,7 +28,7 @@ The Call Analysis Agent recommends follow-up. It never writes to Dynamics. Deter
 This Part completes two intentional starter-code checkpoints:
 
 - `AcsAdapter` must publish the completed call when it receives `CallDisconnected`.
-- `PostCallQueueFunction` must validate analysis and invoke a Worker-owned Dynamics client.
+- `PostCallEventHubFunction` must validate analysis and invoke a Worker-owned Dynamics client.
 
 ## Exercises
 
@@ -40,7 +40,7 @@ This Part completes two intentional starter-code checkpoints:
 ## Exit Criteria
 
 - [ ] Exactly two Foundry agents exist: Knowledge and Call Analysis
-- [ ] Every completed call produces one versioned queue event
+- [ ] Every completed call produces one versioned Event Hub event
 - [ ] Analysis follows the required JSON contract
 - [ ] PII is masked before agent invocation
 - [ ] Dynamics writes are deterministic and idempotent

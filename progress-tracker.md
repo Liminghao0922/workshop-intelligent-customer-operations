@@ -1,6 +1,6 @@
 # Progress Tracker - Intelligent Customer Operations
 
-Last updated: 2026-07-06 11:57 (Asia/Tokyo)
+Last updated: 2026-07-06 (Asia/Tokyo)
 
 ## Session Recovery Result
 
@@ -61,18 +61,25 @@ Last updated: 2026-07-06 11:57 (Asia/Tokyo)
 | Local runnable demo path | Done | setup/run scripts in `scripts/`, demo guide in docs |
 | API + agent/knowledge adapters | Done (Aspire consolidated) | `Gateway/Services/FoundryClient.cs` + `SearchKnowledgeClient.cs` |
 | Aspire-based gateway flow | Done (baseline) | call events, callbacks, ticket/escalation endpoints |
-| Infra template baseline | Done (starter) | `infra/main.bicep` + params/json present |
+| Infra template baseline | Done | Shared Setup provisions Foundry, `gpt-5`, Search, Event Hubs, ACS, Storage, hosting, and RBAC |
 | Automated test coverage | Partial | only prompt test asset found under `tests/e2e-prompts` |
 
 ## Key Gaps To Complete Next
 
 | Priority | Gap | Evidence |
 | --- | --- | --- |
-| P0 | Automatic post-call path incomplete | `CallDisconnected` does not yet publish; Worker logs analysis but does not upsert Dynamics |
 | P0 | Knowledge grounding quality tuning pending | ranking/filter strategy and multilingual relevance tests pending |
-| P1 | Production integration path partially implemented | Azure mode exists; post-call Dynamics completion remains |
+| P1 | Production integration validation pending | Worker policy and Dynamics upsert are implemented; live Dataverse credentials and alternate key still require environment validation |
 | P1 | Validation/tests not complete | no broad automated test suite found |
 | P2 | Delivery hardening pending | deployment/security/observability runbook needs final pass |
+
+Completed in the current architecture pass:
+
+- Gateway publishes the versioned `customer.call.ended` envelope from `CallDisconnected` to Event Hubs.
+- Worker consumes `call-ended` through the `post-call-worker` consumer group.
+- Cosmos-backed completion records provide durable `eventId` idempotency for successful processing.
+- Worker deterministically applies the case policy and upserts Dynamics `incident` by `ico_callid`.
+- The separate `callback-jobs` Storage Queue remains unchanged.
 
 ## Action Plan (Track Here)
 
@@ -83,6 +90,7 @@ Last updated: 2026-07-06 11:57 (Asia/Tokyo)
 | A3 | Tune Search/Fabric grounding quality and multilingual ranking | Team | Todo | 2026-07-03 | Define retrieval contract + eval set |
 | A4 | Add end-to-end automated validation (API + call flow + post-call) | Team | Todo | 2026-07-05 | CI gate before demo/workshop publish |
 | A5 | Finalize infra + deployment runbook for repeatable environment bring-up | Team | Todo | 2026-07-06 | azd/bicep path + config checklist |
+| A6 | Implement deterministic Dynamics policy validation and idempotent incident upsert | Team | Done | 2026-07-06 | Agent recommends; Worker code authorizes and writes |
 
 ## Curriculum Restructure
 
@@ -109,6 +117,8 @@ Last updated: 2026-07-06 11:57 (Asia/Tokyo)
 | Date | Decision | Source | Status |
 | --- | --- | --- | --- |
 | 2026-07-06 | Core curriculum uses exactly two agents: Knowledge Agent and Call Analysis Agent; Voice is a channel, not an agent | team | Active |
+| 2026-07-06 | Shared Setup owns all control-plane resources through one `azd provision`; Parts create data-plane assets and the two Agents | team | Active |
+| 2026-07-06 | Post-call transport uses Event Hubs (`call-ended`); `callback-jobs` remains a separate Storage Queue path | team | Active |
 | 2026-07-06 | Deployment and validation steps live inside each Part; standalone Deploy, Validation, and Multi-Agent modules removed | team | Active |
 | 2026-07-06 | Cloud Shell becomes command baseline for workshop setup/deploy docs; remove portal UI operations when a CLI/PowerShell path is available | team | Active |
 | 2026-07-02 | Knowledge layer switched from Fabric IQ to Azure AI Search across all docs. Reason: Fabric IQ cold-start latency 30–50s unsuitable for real-time agent calls. Fabric IQ retained in Future Expansion section only. | team | Active |

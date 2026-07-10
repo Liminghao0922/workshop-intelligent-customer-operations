@@ -1,96 +1,80 @@
-# Exercise 1 - Prepare Azure Environment
+# Exercise 1 - Provision the Shared Azure Environment
 
 ## Objective
 
-Create the Azure resource group and confirm access to the subscription and services used in this workshop.
+Run one Azure Developer CLI deployment that creates every control-plane resource required by Parts 1-3. Later Parts add knowledge, agents, channel configuration, and business integration without provisioning a second environment.
 
-## Tasks
+## 1. Confirm Access
 
-### 1. Confirm Azure Subscription Access
+Sign in to the [Azure portal](https://portal.azure.com) and confirm that you have **Contributor** or **Owner** access to the target subscription. Open Azure Cloud Shell and select **PowerShell**.
 
-- Sign in to the [Azure Portal](https://portal.azure.com)
-- Confirm you have **Contributor** or **Owner** role on the target subscription
-- Note your subscription ID
-
-### 2. Define a Naming Suffix
-
-Open Azure Cloud Shell (`>_` icon) from the portal. In Azure Cloud Shell, make sure the shell is set to **PowerShell** first, then define one suffix and reuse it for workshop resource names:
+Register the providers used by the workshop if they are not already registered:
 
 ```powershell
-# If Cloud Shell opens in Bash, switch to PowerShell in the Cloud Shell toolbar first.
-$postfix = "workshop"   # replace with your team or customer suffix
-$resourceGroup = "rg-customer-operations-$postfix"
+$providers = @(
+  "Microsoft.App",
+  "Microsoft.CognitiveServices",
+  "Microsoft.Communication",
+  "Microsoft.ContainerRegistry",
+  "Microsoft.DocumentDB",
+  "Microsoft.EventHub",
+  "Microsoft.Search",
+  "Microsoft.Storage"
+)
+
+foreach ($provider in $providers) {
+  az provider register --namespace $provider
+}
 ```
 
-### 3. Create a Resource Group
-
-Create a dedicated resource group for this workshop in Cloud Shell:
-
-```powershell
-az group create --name $resourceGroup --location japaneast
-```
-
-Recommended naming: `rg-customer-operations-$postfix`
-
-### 4. Confirm Required Resource Providers
-
-The **Contributor** or **Owner** role confirmed earlier normally gives you permission to create the workshop resources. Before continuing, also confirm the required Azure resource providers are registered in the subscription. This avoids deployment failures later.
-
-Run the following commands in Azure Cloud Shell (PowerShell):
-
-```powershell
-az provider show --namespace Microsoft.Search --query "registrationState" --output tsv
-az provider show --namespace Microsoft.CognitiveServices --query "registrationState" --output tsv
-az provider show --namespace Microsoft.App --query "registrationState" --output tsv
-az provider show --namespace Microsoft.Storage --query "registrationState" --output tsv
-```
-
-Each command should return `Registered`.
-
-If any provider returns `NotRegistered`, register it:
-
-```powershell
-az provider register --namespace Microsoft.Search
-az provider register --namespace Microsoft.CognitiveServices
-az provider register --namespace Microsoft.App
-az provider register --namespace Microsoft.Storage
-```
-
-Wait a few minutes, then run the `az provider show` commands again until each provider returns `Registered`.
-
-### 5. Record Environment Values
-
-After the resource group is ready, continue in Azure Cloud Shell (PowerShell). If you have not cloned this workshop repository in Cloud Shell yet, clone it first and move into the repository root:
+## 2. Clone the Workshop
 
 ```powershell
 git clone https://github.com/Liminghao0922/workshop-intelligent-customer-operations.git
 Set-Location workshop-intelligent-customer-operations
 ```
 
-The environment template is included in the repository at `config/workshop.env.example`. Copy it to `.env` in the repository root, then fill in the values you already know:
+## 3. Create the azd Environment
+
+Choose one suffix and reuse it throughout the workshop:
 
 ```powershell
-Copy-Item config/workshop.env.example .env
+$postfix = "workshop"   # replace with your team or customer suffix
+$environmentName = "customer-operations-$postfix"
+$location = "japaneast"
+
+azd auth login
+azd env new $environmentName
+azd env set AZURE_LOCATION $location
 ```
 
-Keep `.env` in the repository root. Do not place it under `config/`, because later workshop commands read `.env` from the repository root. Do not commit `.env`, because it contains environment-specific values and may contain secrets.
+If the environment already exists, use `azd env select $environmentName` instead of `azd env new`.
 
-```env
-AZURE_SUBSCRIPTION_ID=<your subscription id>
-AZURE_RESOURCE_GROUP=rg-customer-operations-$postfix
-AZURE_LOCATION=japaneast
+## 4. Preview and Provision Once
+
+```powershell
+azd provision --preview
+azd provision
 ```
 
-## Recommended Region
+This deployment creates the shared resource group, Microsoft Foundry account and project, `gpt-5` deployment, Azure AI Search, Azure Communication Services, Container Apps, Container Registry, Storage, Cosmos DB, Event Hubs, Key Vault, and monitoring resources.
 
-Use **Japan East** (`japaneast`) for this workshop. Ensure the region supports Microsoft Foundry model deployments before proceeding.
+Agents, the Search index, phone number configuration, Event Grid subscription, and Dynamics configuration are intentionally created in the relevant Part.
+
+## 5. Record Outputs
+
+```powershell
+azd env get-values
+azd env get-values > .env
+```
+
+Keep `.env` in the repository root and do not commit it.
 
 ## Validation
 
-- [ ] Signed in to Azure Portal
-- [ ] Resource group created and visible in the portal
-- [ ] Required resource providers return `Registered`
-- [ ] Subscription ID and resource group name recorded in `.env`
-- [ ] `config/workshop.env.example` copied to `.env`
-- [ ] `.env` saved in the repository root in Azure Cloud Shell
-- [ ] `$postfix` defined and reused for naming
+- [ ] All required providers are registered
+- [ ] The azd environment is named `customer-operations-$postfix`
+- [ ] `azd provision --preview` was reviewed
+- [ ] `azd provision` completed successfully once
+- [ ] `azd env get-values` includes Foundry, Search, Event Hubs, Storage, and application outputs
+- [ ] No Agent or Search index was created during provisioning

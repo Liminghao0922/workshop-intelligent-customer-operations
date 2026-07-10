@@ -15,8 +15,8 @@ flowchart LR
   Agent --> SearchTool[Azure AI Search tool<br/>Foundry project connection]
   SearchTool --> Search[(Azure AI Search<br/>多言語ナレッジ索引)]
   Gateway --> Blob[(Azure Storage<br/>通話成果物)]
-  Blob --> Queue[(Azure Storage Queue<br/>post-call-jobs)]
-  Queue --> Functions[Azure Functions (queue trigger)<br/>Azure Container Apps]
+  Blob --> EventHub[(Azure Event Hubs<br/>call-ended)]
+  EventHub --> Functions[Azure Functions (Event Hub trigger)<br/>Azure Container Apps]
   Functions --> AnalyticsAgent[Foundry analytics agent/model]
   AnalyticsAgent --> Blob
   Functions --> CRM[(Dynamics 365 Customer Service<br/>チケット管理)]
@@ -33,7 +33,7 @@ flowchart LR
 
 ## 通話後分析フロー
 
-1. 完了した通話成果物は Azure Storage Queue にイベントとして送信されます。
+1. 完了した通話成果物への参照は Azure Event Hubs にイベントとして送信されます。
 2. Functions が Foundry analytics agent/model を呼び出し、マスキングを考慮した要約、意図、感情、エンティティ、解決状況、アクション項目を生成します。
 3. 構造化された分析結果を Storage に保存し、講師コンソールまたは Power BI に表示します。
 
@@ -47,7 +47,7 @@ flowchart LR
 | モデルアクセス | Foundry Models |
 | ナレッジ grounding | Foundry に接続された Azure AI Search tool |
 | アプリホスティング | Azure Container Apps |
-| 通話後ワークフロー | Azure Container Apps 上の Azure Functions (queue trigger) |
+| 通話後ワークフロー | Azure Container Apps 上の Azure Functions (Event Hubs trigger) |
 | チケット/ケース管理 | Dynamics 365 Customer Service |
 | 通話成果物の保存 | Azure Storage |
 | 監視 | Application Insights と Log Analytics |

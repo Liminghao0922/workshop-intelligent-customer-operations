@@ -3,6 +3,12 @@ targetScope = 'resourceGroup'
 param environmentName string
 param location string = resourceGroup().location
 param tags object = {}
+param searchServiceName string
+param foundryAccountName string
+param foundryProjectName string
+param foundryModelDeploymentName string = 'gpt-5'
+param foundryModelVersion string = '2025-08-07'
+param foundryModelCapacity int = 10
 param voiceLiveModelDeploymentName string = ''
 param voiceLiveModelName string = ''
 param voiceLiveModelVersion string = ''
@@ -18,9 +24,9 @@ var suffix = take(uniqueString(subscription().id, resourceGroup().name, environm
 var clean = replace(toLower(environmentName), '-', '')
 var name = take(clean, 12)
 var storageName = take('st${name}${suffix}', 24)
-var searchName = take('srch-${name}-${suffix}', 60)
-var foundryAccountName = take('ai-${name}-${suffix}', 64)
-var foundryProjectName = take('proj-${name}-${suffix}', 64)
+var eventHubsNamespaceName = take('evhns-${name}-${suffix}', 50)
+var postCallEventHubName = 'call-ended'
+var postCallConsumerGroupName = 'post-call-worker'
 var acsName = take('acs-${name}-${suffix}', 63)
 var kvName = take('kv-${name}-${suffix}', 24)
 var acrName = take('acr${name}${suffix}', 50)
@@ -93,22 +99,42 @@ resource blob 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
   parent: storage
 }
 
-resource queueService 'Microsoft.Storage/storageAccounts/queueServices@2023-05-01' = {
-  name: 'default'
-  parent: storage
-}
-
-resource postCallQueue 'Microsoft.Storage/storageAccounts/queueServices/queues@2023-05-01' = {
-  name: 'post-call-jobs'
-  parent: queueService
-}
-
 resource artifacts 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
   name: 'call-artifacts'
   parent: blob
   properties: {
     publicAccess: 'None'
   }
+}
+
+resource eventHubsNamespace 'Microsoft.EventHub/namespaces@2024-01-01' = {
+  name: eventHubsNamespaceName
+  location: location
+  tags: tags
+  sku: {
+    name: 'Standard'
+    tier: 'Standard'
+    capacity: 1
+  }
+  properties: {
+    publicNetworkAccess: 'Enabled'
+    disableLocalAuth: true
+    minimumTlsVersion: '1.2'
+  }
+}
+
+resource postCallEventHub 'Microsoft.EventHub/namespaces/eventhubs@2024-01-01' = {
+  parent: eventHubsNamespace
+  name: postCallEventHubName
+  properties: {
+    partitionCount: 2
+    messageRetentionInDays: 1
+  }
+}
+
+resource postCallConsumerGroup 'Microsoft.EventHub/namespaces/eventhubs/consumergroups@2024-01-01' = {
+  parent: postCallEventHub
+  name: postCallConsumerGroupName
 }
 
 resource deploymentPackages 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
@@ -149,7 +175,8 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
 }
 
 resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-04-15' = {
-  name: '${cosmos.name}/${cosmosDatabaseName}'
+  parent: cosmos
+  name: cosmosDatabaseName
   properties: {
     resource: {
       id: cosmosDatabaseName
@@ -158,7 +185,8 @@ resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023
 }
 
 resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-04-15' = {
-  name: '${cosmos.name}/${cosmosDatabase.name}/${cosmosContainerName}'
+  parent: cosmosDatabase
+  name: cosmosContainerName
   properties: {
     resource: {
       id: cosmosContainerName
@@ -193,7 +221,7 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
 }
 
 resource search 'Microsoft.Search/searchServices@2024-06-01-preview' = {
-  name: searchName
+  name: searchServiceName
   location: location
   tags: tags
   sku: {
@@ -233,7 +261,24 @@ resource foundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-10-0
   tags: tags
   properties: {
     displayName: foundryProjectName
-    description: 'Smart call center foundry project'
+    description: 'Intelligent customer operations workshop'
+  }
+}
+
+resource foundryModelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
+  parent: foundryAccount
+  name: foundryModelDeploymentName
+  sku: {
+    name: 'GlobalStandard'
+    capacity: foundryModelCapacity
+  }
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: 'gpt-5'
+      version: foundryModelVersion
+    }
+    versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
   }
 }
 
@@ -310,10 +355,11 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'VOICE_LIVE_ENDPOINT', value: foundryAccount.properties.endpoint }
             { name: 'VOICE_LIVE_MODEL', value: voiceLiveModelDeploymentName }
             { name: 'AZURE_SEARCH_ENDPOINT', value: 'https://${search.name}.search.windows.net' }
-            { name: 'AZURE_SEARCH_INDEX_NAME', value: 'call-center-knowledge' }
+            { name: 'AZURE_SEARCH_INDEX_NAME', value: 'customer-operations-knowledge' }
             { name: 'AZURE_STORAGE_ACCOUNT_NAME', value: storage.name }
             { name: 'CALL_ARTIFACT_CONTAINER', value: artifacts.name }
-            { name: 'POST_CALL_QUEUE_NAME', value: postCallQueue.name }
+            { name: 'POST_CALL_EVENT_HUB_FULLY_QUALIFIED_NAMESPACE', value: '${eventHubsNamespace.name}.servicebus.windows.net' }
+            { name: 'POST_CALL_EVENT_HUB_NAME', value: postCallEventHub.name }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appi.properties.ConnectionString }
             { name: 'ACS_CONNECTION_STRING', value: acsConnectionString }
             { name: 'ACS_CALLBACK_SECRET', value: acsCallbackSecret }
@@ -365,8 +411,13 @@ resource worker 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'AZURE_AI_PROJECT_ENDPOINT', value: foundryProjectEndpoint }
             { name: 'FOUNDRY_AGENT_ID', value: '' }
             { name: 'FOUNDRY_ANALYTICS_AGENT_ID', value: '' }
-            { name: 'POST_CALL_QUEUE_NAME', value: postCallQueue.name }
+            { name: 'PostCallEventHub__fullyQualifiedNamespace', value: '${eventHubsNamespace.name}.servicebus.windows.net' }
+            { name: 'POST_CALL_EVENT_HUB_NAME', value: postCallEventHub.name }
+            { name: 'POST_CALL_EVENT_HUB_CONSUMER_GROUP', value: postCallConsumerGroup.name }
             { name: 'AZURE_STORAGE_ACCOUNT_NAME', value: storage.name }
+            { name: 'COSMOS_ENDPOINT', value: cosmos.properties.documentEndpoint }
+            { name: 'COSMOS_DATABASE_NAME', value: cosmosDatabaseName }
+            { name: 'COSMOS_CONTAINER_NAME', value: cosmosContainerName }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appi.properties.ConnectionString }
           ]
           resources: {
@@ -521,6 +572,26 @@ resource workerStorageContributor 'Microsoft.Authorization/roleAssignments@2022-
   }
 }
 
+resource webEventHubsSender 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(postCallEventHub.id, web.id, 'event-hubs-data-sender')
+  scope: postCallEventHub
+  properties: {
+    principalId: web.identity.principalId
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2b629674-e913-4c01-ae53-ef4638d8f975')
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource workerEventHubsReceiver 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(postCallEventHub.id, worker.id, 'event-hubs-data-receiver')
+  scope: postCallEventHub
+  properties: {
+    principalId: worker.identity.principalId
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde')
+    principalType: 'ServicePrincipal'
+  }
+}
+
 resource webSearchContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(search.id, web.id, 'search-index-contributor')
   scope: search
@@ -581,6 +652,16 @@ resource webCosmosDataContributor 'Microsoft.DocumentDB/databaseAccounts/sqlRole
   }
 }
 
+resource workerCosmosDataContributor 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2023-04-15' = {
+  name: guid(cosmos.id, worker.id, 'cosmos-data-contributor')
+  parent: cosmos
+  properties: {
+    principalId: worker.identity.principalId
+    roleDefinitionId: '${cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002'
+    scope: '/'
+  }
+}
+
 output gatewayUrl string = 'https://${web.properties.configuration.ingress.fqdn}'
 output apiUrl string = 'https://${api.properties.configuration.ingress.fqdn}'
 output portalUrl string = 'https://${portal.properties.configuration.ingress.fqdn}'
@@ -588,11 +669,14 @@ output acrLoginServer string = acr.properties.loginServer
 output storageAccountName string = storage.name
 output searchEndpoint string = 'https://${search.name}.search.windows.net'
 output keyVaultName string = kv.name
-output postCallAnalyticsEndpoint string = postCallQueue.name
+output eventHubsNamespace string = '${eventHubsNamespace.name}.servicebus.windows.net'
+output postCallEventHubName string = postCallEventHub.name
+output postCallConsumerGroupName string = postCallConsumerGroup.name
 output foundryProjectEndpoint string = foundryProjectEndpoint
 output voiceLiveEndpoint string = foundryAccount.properties.endpoint
 output foundryAccountName string = foundryAccount.name
 output foundryProjectName string = foundryProject.name
+output foundryModelDeploymentName string = foundryModelDeployment.name
 output voiceLiveModelDeploymentName string = voiceLiveModelDeploymentName
 output cosmosAccountName string = cosmos.name
 output cosmosEndpoint string = cosmos.properties.documentEndpoint

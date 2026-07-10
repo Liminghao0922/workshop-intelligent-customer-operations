@@ -14,7 +14,7 @@ Participants build an end-to-end customer call experience:
 ```text
 Customer Call → ACS Voice Channel → Knowledge Agent → Azure AI Search
                                            ↓
-CallDisconnected → Storage Queue → Azure Function → Call Analysis Agent
+CallDisconnected → Azure Event Hubs → Azure Function → Call Analysis Agent
                                            ↓
                               Conditional Dynamics 365 Case
 ```
@@ -30,7 +30,7 @@ workshop-intelligent-customer-operations
 | Module | Name | Outcome |
 | --- | --- | --- |
 | 00 | Workshop Overview | Understand business scenario and target architecture |
-| 01 | Shared Environment Setup | Prepare Azure, Search, Foundry, ACS, Storage, and hosting prerequisites |
+| 01 | Shared Environment Setup | Provision Azure, Search, Foundry, ACS, Event Hubs, Storage, and hosting once |
 | Part 1 | Build the Knowledge Agent | Create and validate Azure AI Search-grounded answers |
 | Part 2 | Build the Voice Channel | Connect inbound ACS calls to the Knowledge Agent |
 | Part 3 | Analyze Calls and Create Tickets | Process call-ended events and conditionally create Dynamics cases |

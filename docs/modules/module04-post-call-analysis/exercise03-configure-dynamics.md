@@ -24,14 +24,15 @@ The alternate key makes the source `callId` the idempotency key. Do not rely on 
 
 Do not assign System Administrator to the application user.
 
-## 3. Move Dynamics Ownership to Worker
+## 3. Review Dynamics Ownership in Worker
 
-The starter `DynamicsCaseClient` is in Gateway for the real-time handoff sample. Part 3 requires a Worker-owned client:
+Open the Worker implementation:
 
-1. Move or recreate the client in `IntelligentCustomerOperations.PostCallWorker`.
-2. Add `Microsoft.PowerPlatform.Dataverse.Client` to the Worker project.
-3. Register the client in Worker `Program.cs`.
-4. Add a method that upserts `incident` by alternate key `ico_callid`.
+- `DynamicsCaseClient.cs` upserts `incident` by the `ico_callid` alternate key.
+- `CaseDecisionService.cs` applies application policy before calling Dataverse.
+- `PostCallEventHubFunction.cs` stores completion only after the case decision succeeds.
+
+Confirm `Microsoft.PowerPlatform.Dataverse.Client` is referenced by the Worker project and both services are registered in `Program.cs`.
 
 Map validated analysis to Dataverse:
 
@@ -46,7 +47,7 @@ Do not send the raw transcript to Dynamics.
 
 ## 4. Apply the Deterministic Decision Rule
 
-After schema validation, create or update a case only when:
+The starter code creates or updates a case only when:
 
 ```text
 followUpRequired == true

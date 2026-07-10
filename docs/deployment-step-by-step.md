@@ -12,8 +12,9 @@
 完成后会得到以下核心资源（同一资源组内）：
 
 - 一个对外访问的 Gateway 容器应用
-- 一个处理 post-call 队列事件的 Worker 容器应用
-- 存储账号（含队列）
+- 一个处理 `call-ended` Event Hub 事件的 Worker 容器应用
+- Event Hubs namespace、`call-ended` Event Hub 与 `post-call-worker` consumer group
+- 存储账号（保存通话产物和独立的 callback jobs）
 - Azure AI Search
 - Key Vault
 - Container Registry
@@ -27,7 +28,7 @@
 - 本模板不会自动购买电话号码（PSTN）或配置 Direct Routing。
 - 本模板不会自动把 ACS 连接串写入运行时变量，你需要在部署后手动设置。
 - 本模板会自动创建 Foundry Account 与 Foundry Project。
-- 模板会在 `azd provision` 后自动尝试创建 Foundry Agent（通过 `azure.yaml` 的 postprovision hook 调用脚本）。
+- 模板会部署 `gpt-5`，但不会创建 Agent；Knowledge Agent 在 Part 1 创建，Call Analysis Agent 在 Part 3 创建。
 - Voice Live 模型可由 Bicep 自动部署（前提是设置 `VOICE_LIVE_MODEL`、`VOICE_LIVE_MODEL_NAME`、`VOICE_LIVE_MODEL_VERSION`）。
 
 项目中的部署定义来自以下文件：
@@ -83,10 +84,10 @@ az account show --output table
 
 ### 2.1 创建环境
 
-环境名建议使用英文小写，例如：`smart-call-center-dev`。
+环境名使用与 workshop 一致的后缀，例如：`customer-operations-workshop`。
 
 ```powershell
-azd env new smart-call-center-dev
+azd env new customer-operations-workshop
 ```
 
 ### 2.2 设置部署区域
@@ -112,7 +113,6 @@ azd env get-values
 ```powershell
 azd env set ACS_CONNECTION_STRING "<你的ACS连接串>"
 azd env set ACS_CALLBACK_SECRET "<你自定义的回调密钥>"
-azd env set FOUNDRY_AGENT_MODEL "<Agent 使用的模型部署名，例如 gpt-4o-realtime-preview>"
 azd env set VOICE_LIVE_MODEL "<模型部署名，例如 gpt-4o-realtime-preview>"
 azd env set VOICE_LIVE_MODEL_NAME "<模型名，例如 gpt-4o-realtime-preview>"
 azd env set VOICE_LIVE_MODEL_VERSION "<模型版本，例如 2025-03-01-preview>"
@@ -125,41 +125,22 @@ azd env set VOICE_LIVE_MODEL_VERSION "<模型版本，例如 2025-03-01-preview>
 
 ---
 
-## 3.5 Foundry 与 Voice Live（自动化 + 可选 Toolkit）
+## 3.5 Foundry 与 Voice Live
 
 这一节是很多人最容易漏掉的地方。
 
-本仓库的 Bicep 会创建 Foundry Account 和 Foundry Project；另外，当你提供模型参数时也会自动部署 Voice Live 模型。Agent 创建由部署脚本自动完成。
+本仓库的 Bicep 会一次创建 Foundry Account、Foundry Project 和 `gpt-5` deployment；另外，当你提供模型参数时也会部署 Voice Live 模型。Agent 是每个 Part 的学习成果，不在 Shared Setup 自动创建。
 
 请按顺序执行：
 
-### 3.5.1 自动创建 Agent（默认流程）
+### 3.5.1 创建两个 Agent
 
-在 `azd provision` 完成后，会自动执行：
+完成 Shared Setup 后，按 workshop 顺序操作：
 
-- `scripts/foundry/ensure-agents.ps1`
+- Part 1：基于 `gpt-5` 创建 Knowledge Agent，并连接 Azure AI Search。
+- Part 3：基于 `gpt-5` 创建 Call Analysis Agent，并配置严格 JSON 输出。
 
-该脚本会在 Foundry Project 中确保以下两个 Agent 存在：
-
-- 主对话 Agent（`smart-call-center-main`）
-- Post-call Analytics Agent（`smart-call-center-analytics`）
-
-并自动回写环境变量：
-
-- `FOUNDRY_AGENT_ID`
-- `FOUNDRY_ANALYTICS_AGENT_ID`
-
-如果你想手动重跑：
-
-```powershell
-./scripts/foundry/ensure-agents.ps1
-```
-
-若脚本提示模型为空，请先设置：
-
-```powershell
-azd env set FOUNDRY_AGENT_MODEL "<模型部署名>"
-```
+Voice Channel 不是 Agent。整个方案始终只有这两个 Foundry Agent。
 
 ### 3.5.2 部署 Voice Live 模型
 
@@ -173,7 +154,7 @@ azd env set VOICE_LIVE_MODEL_VERSION "<模型版本，例如 2025-03-01-preview>
 
 若以上三个参数任意为空，模板会跳过模型部署。
 
-### 3.5.3 把自动生成的 Agent ID 应用到运行时
+### 3.5.3 把 Part 中创建的 Agent ID 应用到运行时
 
 ```powershell
 azd deploy
@@ -181,7 +162,7 @@ azd deploy
 
 说明：
 
-- `azd deploy` 用于把自动生成的 Agent ID 和其他变量更新到 Container Apps。
+- `azd deploy` 用于把 Part 中记录的 Agent ID 和其他变量更新到 Container Apps。
 - 若这一步未完成，应用虽然能启动，但 AI 对话和 post-call 分析可能不可用或退化。
 
 ### 3.5.4 可选：使用 Foundry Toolkit 管理 Agent 配置
@@ -192,25 +173,23 @@ azd deploy
 2. 将 Agent 定义文件提交到仓库。
 3. 在 CI/CD 或本地执行同步命令更新 Project 中的 Agent。
 
-建议策略：
-
-- 日常自动化创建与兜底：`ensure-agents.ps1`
-- 高级配置管理与团队协作：Foundry Toolkit
+建议使用 Foundry Toolkit 对 Agent 的 prompt、tools 和版本进行团队协作与版本管理。
 
 ---
 
 ## 4. 部署资源（Provision）
 
-先创建 Azure 资源：
+先预览，再一次性创建 Azure 资源：
 
 ```powershell
+azd provision --preview
 azd provision
 ```
 
 成功后你会看到类似输出：
 
 - Resource group 已创建
-- Container Registry / Container Apps / Storage / Search / Key Vault 已完成
+- Foundry / Search / Event Hubs / Container Apps / Storage / Key Vault 已完成
 
 如果失败，先看第 8 节排错。
 

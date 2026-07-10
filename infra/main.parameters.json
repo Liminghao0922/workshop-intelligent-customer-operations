@@ -8,6 +8,12 @@
     "location": {
       "value": "${AZURE_LOCATION}"
     },
+    "foundryModelDeploymentName": {
+      "value": "${FOUNDRY_MODEL_DEPLOYMENT=gpt-5}"
+    },
+    "foundryModelVersion": {
+      "value": "${FOUNDRY_MODEL_VERSION=2025-08-07}"
+    },
     "voiceLiveModelDeploymentName": {
       "value": "${VOICE_LIVE_MODEL}"
     },

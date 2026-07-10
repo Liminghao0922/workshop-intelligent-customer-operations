@@ -28,7 +28,7 @@ dotnet run --project src/aspire/IntelligentCustomerOperations.AppHost
 | ナレッジ回答 | Foundry Agent と Azure AI Search tool |
 | 引き継ぎカード | Foundry function tool による CRM/コンタクトセンター API 呼び出し |
 | 通話成果物の保存 | Azure Storage |
-| 通話後フロー | Azure Container Apps 上の Azure Functions (queue trigger) |
+| 通話後フロー | Azure Container Apps 上の Azure Functions (Event Hubs trigger) |
 | 要約と感情 | Foundry analytics agent/model |
 | ダッシュボードカード | Instructor console または Power BI |
 

@@ -2,20 +2,20 @@
 
 ## Goal
 
-Prepare the Azure services, source code, and Cloud Shell access needed to run all workshop modules.
+Provision all shared Azure resources once, then validate the services used by Parts 1-3.
 
 By the end of this module, every participant should have working access to:
 
 - An Azure resource group with required services provisioned
-- An Azure AI Search service and knowledge index ready for agent grounding
+- An Azure AI Search service ready for the Part 1 knowledge index
 - A Microsoft Foundry project with a `gpt-5` deployment ready for Parts 1 and 3
 - A cloned repository in Cloud Shell storage
 
 ## Topics
 
-- Azure subscription and resource group setup
-- Azure AI Search service provisioning
-- Microsoft Foundry project and model deployment
+- One-time `azd provision`
+- Azure AI Search validation
+- Microsoft Foundry project and model validation
 - Cloud Shell environment and repository setup
 
 ## Required Azure Services
@@ -27,7 +27,8 @@ By the end of this module, every participant should have working access to:
 | Microsoft Foundry | Part 1 and Part 3 | Knowledge and Call Analysis agents |
 | Azure Communication Services | Part 2 | Inbound PSTN voice channel |
 | Azure Container Apps | Part 2 and Part 3 | Voice Gateway and post-call Worker hosting |
-| Azure Storage | Part 3 | Call artifacts and post-call queue |
+| Azure Storage | Part 2 and Part 3 | Call artifacts and Functions host storage |
+| Azure Event Hubs | Part 3 | Durable call-ended event transport |
 | Dynamics 365 | Part 3 | Cases requiring human follow-up |
 
 ## Cloud Shell Setup Path
@@ -49,8 +50,8 @@ In a second terminal:
 
 By the end of this module, participants should have:
 
-- Azure resource group confirmed with required services accessible
-- Azure AI Search endpoint and API key recorded
+- Shared infrastructure created by one `azd provision`
+- Azure AI Search endpoint recorded
 - Microsoft Foundry project endpoint and model deployment name recorded
 - Cloud Shell access confirmed and repository cloned
 - `config/workshop.env.example` values filled in for their environment
@@ -63,9 +64,9 @@ $postfix = "workshop"   # replace with your team or customer suffix
 
 ## Exit Criteria
 
-- [ ] Azure subscription and resource group confirmed
-- [ ] Azure AI Search service created and endpoint recorded
-- [ ] Microsoft Foundry project created and model deployment confirmed
+- [ ] `azd provision` completed once
+- [ ] Azure AI Search service validated
+- [ ] Microsoft Foundry project and model deployment validated
 - [ ] Azure Cloud Shell available and ready
 - [ ] Repository cloned and `setup-local.ps1` runs without errors in Cloud Shell
 - [ ] Resource names are derived from `$postfix`
@@ -76,6 +77,6 @@ $postfix = "workshop"   # replace with your team or customer suffix
 - [ ] Complete Exercise 1 - Azure Environment
 - [ ] Complete Exercise 2 - Azure AI Search Service
 - [ ] Complete Exercise 3 - Microsoft Foundry Project
-- [ ] Fill in `config/workshop.env.example`
+- [ ] Save `azd env get-values` to the repository-root `.env`
 - [ ] Run Cloud Shell setup and confirm no errors
 - [ ] Proceed to Part 1

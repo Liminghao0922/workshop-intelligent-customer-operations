@@ -5,7 +5,7 @@ You completed the asynchronous half of the customer-call lifecycle.
 ## What You Now Have
 
 - Versioned, idempotent call-ended event
-- Queue-trigger Azure Function with retry behavior
+- Event Hub-trigger Azure Function with consumer checkpoint and retry behavior
 - PII masking before AI analysis
 - Structured Call Analysis Agent output
 - Deterministic follow-up policy

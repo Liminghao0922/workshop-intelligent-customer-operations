@@ -9,7 +9,6 @@ Utility scripts for setup, validation, and cleanup.
 - `run-frontend.ps1` - starts portal project only (standalone)
 - `run-demo.ps1` - runs call simulation against Gateway endpoints
 
-## Foundry Validation Scripts
+## Foundry Validation Script
 
-- `foundry/ensure-agents.ps1` - ensures Foundry agents exist and writes IDs to azd env
 - `foundry/validate-azure-mode.ps1` - validates non-mock azure mode runtime path through Gateway endpoints

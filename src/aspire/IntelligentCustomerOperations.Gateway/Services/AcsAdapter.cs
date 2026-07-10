@@ -59,6 +59,7 @@ public sealed partial class AcsAdapter : ICallChannelAdapter
     private readonly CallStore _store;
     private readonly TicketService _ticketService;
     private readonly StorageRepository _storage;
+    private readonly PostCallPublisher _postCallPublisher;
     private readonly CallbackQueuePublisher _callbackQueue;
     private readonly AppConfig _config;
     private readonly ILogger<AcsAdapter> _logger;
@@ -70,6 +71,7 @@ public sealed partial class AcsAdapter : ICallChannelAdapter
         CallStore store,
         TicketService ticketService,
         StorageRepository storage,
+        PostCallPublisher postCallPublisher,
         CallbackQueuePublisher callbackQueue,
         AppConfig config,
         ILogger<AcsAdapter> logger
@@ -79,6 +81,7 @@ public sealed partial class AcsAdapter : ICallChannelAdapter
         _store = store;
         _ticketService = ticketService;
         _storage = storage;
+        _postCallPublisher = postCallPublisher;
         _callbackQueue = callbackQueue;
         _config = config;
         _logger = logger;
@@ -388,13 +391,29 @@ public sealed partial class AcsAdapter : ICallChannelAdapter
                     var call = _store.GetCall(callId);
                     if (call is not null)
                     {
-                        _store.UpdateCall(
+                        var completedAt = DateTimeOffset.UtcNow.ToString("o");
+                        var completedCall = _store.UpdateCall(
                             callId,
                             c =>
                             {
                                 c.Status = "completed";
-                                c.CompletedAt = DateTimeOffset.UtcNow.ToString("o");
+                                c.CompletedAt = completedAt;
                             }
+                        );
+                        await _storage.SaveCallArtifactAsync(completedCall, ct);
+                        var publishResult = await _postCallPublisher.PublishAsync(completedCall, ct);
+                        _store.UpdateCall(
+                            callId,
+                            c =>
+                            {
+                                c.AnalyticsStatus = "submitted";
+                                c.PostCallResult = publishResult.DeepClone();
+                            }
+                        );
+                        _logger.LogInformation(
+                            "Published call-ended event. callId={CallId} eventId={EventId}",
+                            callId,
+                            publishResult["eventId"]?.GetValue<string>() ?? "mock"
                         );
                     }
                 }

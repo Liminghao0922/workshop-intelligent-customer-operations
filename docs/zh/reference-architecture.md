@@ -15,8 +15,8 @@ flowchart LR
   Agent --> SearchTool[Azure AI Search tool<br/>Foundry project connection]
   SearchTool --> Search[(Azure AI Search<br/>多语言知识索引)]
   Gateway --> Blob[(Azure Storage<br/>通话产物)]
-  Blob --> Queue[(Azure Storage Queue<br/>post-call-jobs)]
-  Queue --> Functions[Azure Functions (queue trigger)<br/>Azure Container Apps]
+  Blob --> EventHub[(Azure Event Hubs<br/>call-ended)]
+  EventHub --> Functions[Azure Functions (Event Hub trigger)<br/>Azure Container Apps]
   Functions --> AnalyticsAgent[Foundry analytics agent/model]
   AnalyticsAgent --> Blob
   Functions --> CRM[(Dynamics 365 Customer Service<br/>工单系统)]
@@ -33,7 +33,7 @@ flowchart LR
 
 ## 通话后分析流程
 
-1. 已完成的通话产物以事件方式写入 Azure Storage Queue。
+1. 已完成通话产物的引用以事件方式写入 Azure Event Hubs。
 2. Functions 调用 Foundry analytics agent/model，生成考虑脱敏的摘要、意图、情绪、实体、解决状态和行动项。
 3. 结构化分析结果保存回 Storage，并展示到讲师控制台或 Power BI。
 
@@ -47,7 +47,7 @@ flowchart LR
 | 模型访问 | Foundry Models |
 | 知识 grounding | 连接到 Foundry 的 Azure AI Search tool |
 | 应用托管 | Azure Container Apps |
-| 通话后工作流 | Azure Container Apps 上的 Azure Functions (queue trigger) |
+| 通话后工作流 | Azure Container Apps 上的 Azure Functions (Event Hubs trigger) |
 | 工单/案件管理 | Dynamics 365 Customer Service |
 | 通话产物存储 | Azure Storage |
 | 监控 | Application Insights 和 Log Analytics |

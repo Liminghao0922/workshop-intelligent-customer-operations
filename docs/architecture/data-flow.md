@@ -16,7 +16,7 @@
 ```text
 1. Call Automation sends CallDisconnected to Gateway.
 2. Gateway persists the completed record and publishes customer.call.ended.
-3. Storage Queue delivers the event to the Azure Function Worker.
+3. Event Hubs delivers the event to the Azure Function Worker through its dedicated consumer group.
 4. Worker masks PII before invoking the Call Analysis Agent.
 5. Worker validates the structured recommendation and applies deterministic policy.
 6. Worker upserts a Dynamics Case only when follow-up is required.
@@ -29,9 +29,9 @@
 | --- | --- | --- |
 | Knowledge documents | FAQ, policy, troubleshooting guide | Azure AI Search / Agent |
 | Conversation data | customer and assistant turns | Gateway / post-call Worker |
-| Call-ended event | call ID, language, artifact references | Queue / Worker |
+| Call-ended event | call ID, language, artifact references | Event Hubs / Worker |
 | Masked analysis | summary, resolution, follow-up recommendation | Call Analysis Agent / Worker |
 | Case data | summary, priority, source call ID | Dynamics 365 |
 
-Queue events carry transcript data only for workshop simplicity. Production implementations should prefer encrypted artifact references with access scoped to Worker.
+Event Hub events carry transcript data only for workshop simplicity. Production implementations should prefer encrypted artifact references with access scoped to Worker.
 

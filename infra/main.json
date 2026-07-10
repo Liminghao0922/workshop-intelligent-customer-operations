@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.41.2.15936",
-      "templateHash": "12483597902392024381"
+      "version": "0.44.1.10279",
+      "templateHash": "4224175714409609469"
     }
   },
   "parameters": {
@@ -16,6 +16,18 @@
     "location": {
       "type": "string",
       "defaultValue": "japaneast"
+    },
+    "foundryModelDeploymentName": {
+      "type": "string",
+      "defaultValue": "gpt-5"
+    },
+    "foundryModelVersion": {
+      "type": "string",
+      "defaultValue": "2025-08-07"
+    },
+    "foundryModelCapacity": {
+      "type": "int",
+      "defaultValue": 10
     },
     "voiceLiveModelDeploymentName": {
       "type": "string",
@@ -58,7 +70,11 @@
     "tags": {
       "azd-env-name": "[parameters('environmentName')]",
       "workload": "smart-call-center"
-    }
+    },
+    "workshopPostfix": "[replace(parameters('environmentName'), 'customer-operations-', '')]",
+    "searchServiceName": "[format('srch-customer-ops-{0}', variables('workshopPostfix'))]",
+    "foundryAccountName": "[format('foundry-{0}', parameters('environmentName'))]",
+    "foundryProjectName": "[format('proj-{0}', parameters('environmentName'))]"
   },
   "resources": [
     {
@@ -87,6 +103,24 @@
           },
           "tags": {
             "value": "[variables('tags')]"
+          },
+          "searchServiceName": {
+            "value": "[variables('searchServiceName')]"
+          },
+          "foundryAccountName": {
+            "value": "[variables('foundryAccountName')]"
+          },
+          "foundryProjectName": {
+            "value": "[variables('foundryProjectName')]"
+          },
+          "foundryModelDeploymentName": {
+            "value": "[parameters('foundryModelDeploymentName')]"
+          },
+          "foundryModelVersion": {
+            "value": "[parameters('foundryModelVersion')]"
+          },
+          "foundryModelCapacity": {
+            "value": "[parameters('foundryModelCapacity')]"
           },
           "voiceLiveModelDeploymentName": {
             "value": "[parameters('voiceLiveModelDeploymentName')]"
@@ -122,8 +156,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.41.2.15936",
-              "templateHash": "9213393979523823783"
+              "version": "0.44.1.10279",
+              "templateHash": "8983219122801680166"
             }
           },
           "parameters": {
@@ -137,6 +171,27 @@
             "tags": {
               "type": "object",
               "defaultValue": {}
+            },
+            "searchServiceName": {
+              "type": "string"
+            },
+            "foundryAccountName": {
+              "type": "string"
+            },
+            "foundryProjectName": {
+              "type": "string"
+            },
+            "foundryModelDeploymentName": {
+              "type": "string",
+              "defaultValue": "gpt-5"
+            },
+            "foundryModelVersion": {
+              "type": "string",
+              "defaultValue": "2025-08-07"
+            },
+            "foundryModelCapacity": {
+              "type": "int",
+              "defaultValue": 10
             },
             "voiceLiveModelDeploymentName": {
               "type": "string",
@@ -180,9 +235,9 @@
             "clean": "[replace(toLower(parameters('environmentName')), '-', '')]",
             "name": "[take(variables('clean'), 12)]",
             "storageName": "[take(format('st{0}{1}', variables('name'), variables('suffix')), 24)]",
-            "searchName": "[take(format('srch-{0}-{1}', variables('name'), variables('suffix')), 60)]",
-            "foundryAccountName": "[take(format('ai-{0}-{1}', variables('name'), variables('suffix')), 64)]",
-            "foundryProjectName": "[take(format('proj-{0}-{1}', variables('name'), variables('suffix')), 64)]",
+            "eventHubsNamespaceName": "[take(format('evhns-{0}-{1}', variables('name'), variables('suffix')), 50)]",
+            "postCallEventHubName": "call-ended",
+            "postCallConsumerGroupName": "post-call-worker",
             "acsName": "[take(format('acs-{0}-{1}', variables('name'), variables('suffix')), 63)]",
             "kvName": "[take(format('kv-{0}-{1}', variables('name'), variables('suffix')), 24)]",
             "acrName": "[take(format('acr{0}{1}', variables('name'), variables('suffix')), 50)]",
@@ -266,22 +321,6 @@
               ]
             },
             {
-              "type": "Microsoft.Storage/storageAccounts/queueServices",
-              "apiVersion": "2023-05-01",
-              "name": "[format('{0}/{1}', variables('storageName'), 'default')]",
-              "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
-              "apiVersion": "2023-05-01",
-              "name": "[format('{0}/{1}/{2}', variables('storageName'), 'default', 'post-call-jobs')]",
-              "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('storageName'), 'default')]"
-              ]
-            },
-            {
               "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
               "apiVersion": "2023-05-01",
               "name": "[format('{0}/{1}/{2}', variables('storageName'), 'default', 'call-artifacts')]",
@@ -290,6 +329,43 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageName'), 'default')]"
+              ]
+            },
+            {
+              "type": "Microsoft.EventHub/namespaces",
+              "apiVersion": "2024-01-01",
+              "name": "[variables('eventHubsNamespaceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "Standard",
+                "tier": "Standard",
+                "capacity": 1
+              },
+              "properties": {
+                "publicNetworkAccess": "Enabled",
+                "disableLocalAuth": true,
+                "minimumTlsVersion": "1.2"
+              }
+            },
+            {
+              "type": "Microsoft.EventHub/namespaces/eventhubs",
+              "apiVersion": "2024-01-01",
+              "name": "[format('{0}/{1}', variables('eventHubsNamespaceName'), variables('postCallEventHubName'))]",
+              "properties": {
+                "partitionCount": 2,
+                "messageRetentionInDays": 1
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubsNamespaceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+              "apiVersion": "2024-01-01",
+              "name": "[format('{0}/{1}/{2}', variables('eventHubsNamespaceName'), variables('postCallEventHubName'), variables('postCallConsumerGroupName'))]",
+              "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName'))]"
               ]
             },
             {
@@ -349,7 +425,7 @@
             {
               "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
               "apiVersion": "2023-04-15",
-              "name": "[format('{0}/{1}/{2}', variables('cosmosName'), format('{0}/{1}', variables('cosmosName'), variables('cosmosDatabaseName')), variables('cosmosContainerName'))]",
+              "name": "[format('{0}/{1}/{2}', variables('cosmosName'), variables('cosmosDatabaseName'), variables('cosmosContainerName'))]",
               "properties": {
                 "resource": {
                   "id": "[variables('cosmosContainerName')]",
@@ -367,8 +443,7 @@
                 "options": {}
               },
               "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/{1}', variables('cosmosName'), variables('cosmosDatabaseName')), '/')[0], split(format('{0}/{1}', variables('cosmosName'), variables('cosmosDatabaseName')), '/')[1])]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosName'), variables('cosmosDatabaseName'))]"
               ]
             },
             {
@@ -390,7 +465,7 @@
             {
               "type": "Microsoft.Search/searchServices",
               "apiVersion": "2024-06-01-preview",
-              "name": "[variables('searchName')]",
+              "name": "[parameters('searchServiceName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]",
               "sku": {
@@ -407,7 +482,7 @@
             {
               "type": "Microsoft.CognitiveServices/accounts",
               "apiVersion": "2025-10-01-preview",
-              "name": "[variables('foundryAccountName')]",
+              "name": "[parameters('foundryAccountName')]",
               "location": "[parameters('location')]",
               "kind": "AIServices",
               "sku": {
@@ -416,32 +491,52 @@
               "tags": "[parameters('tags')]",
               "properties": {
                 "allowProjectManagement": true,
-                "customSubDomainName": "[variables('foundryAccountName')]",
+                "customSubDomainName": "[parameters('foundryAccountName')]",
                 "publicNetworkAccess": "Enabled"
               }
             },
             {
               "type": "Microsoft.CognitiveServices/accounts/projects",
               "apiVersion": "2025-10-01-preview",
-              "name": "[format('{0}/{1}', variables('foundryAccountName'), variables('foundryProjectName'))]",
+              "name": "[format('{0}/{1}', parameters('foundryAccountName'), parameters('foundryProjectName'))]",
               "location": "[parameters('location')]",
               "identity": {
                 "type": "SystemAssigned"
               },
               "tags": "[parameters('tags')]",
               "properties": {
-                "displayName": "[variables('foundryProjectName')]",
-                "description": "Smart call center foundry project"
+                "displayName": "[parameters('foundryProjectName')]",
+                "description": "Intelligent customer operations workshop"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts/deployments",
+              "apiVersion": "2024-10-01",
+              "name": "[format('{0}/{1}', parameters('foundryAccountName'), parameters('foundryModelDeploymentName'))]",
+              "sku": {
+                "name": "GlobalStandard",
+                "capacity": "[parameters('foundryModelCapacity')]"
+              },
+              "properties": {
+                "model": {
+                  "format": "OpenAI",
+                  "name": "gpt-5",
+                  "version": "[parameters('foundryModelVersion')]"
+                },
+                "versionUpgradeOption": "OnceNewDefaultVersionAvailable"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]"
               ]
             },
             {
               "condition": "[and(and(not(empty(parameters('voiceLiveModelDeploymentName'))), not(empty(parameters('voiceLiveModelName')))), not(empty(parameters('voiceLiveModelVersion'))))]",
               "type": "Microsoft.CognitiveServices/accounts/deployments",
               "apiVersion": "2024-10-01",
-              "name": "[format('{0}/{1}', variables('foundryAccountName'), parameters('voiceLiveModelDeploymentName'))]",
+              "name": "[format('{0}/{1}', parameters('foundryAccountName'), parameters('voiceLiveModelDeploymentName'))]",
               "sku": {
                 "name": "GlobalStandard",
                 "capacity": "[parameters('voiceLiveModelCapacity')]"
@@ -456,7 +551,7 @@
                 "raiPolicyName": "Microsoft.DefaultV2"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]"
               ]
             },
             {
@@ -522,7 +617,7 @@
                         },
                         {
                           "name": "AZURE_AI_PROJECT_ENDPOINT",
-                          "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], variables('foundryProjectName'))]"
+                          "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], parameters('foundryProjectName'))]"
                         },
                         {
                           "name": "FOUNDRY_AGENT_ID",
@@ -534,7 +629,7 @@
                         },
                         {
                           "name": "VOICE_LIVE_ENDPOINT",
-                          "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoint]"
+                          "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName')), '2025-10-01-preview').endpoint]"
                         },
                         {
                           "name": "VOICE_LIVE_MODEL",
@@ -542,11 +637,11 @@
                         },
                         {
                           "name": "AZURE_SEARCH_ENDPOINT",
-                          "value": "[format('https://{0}.search.windows.net', variables('searchName'))]"
+                          "value": "[format('https://{0}.search.windows.net', parameters('searchServiceName'))]"
                         },
                         {
                           "name": "AZURE_SEARCH_INDEX_NAME",
-                          "value": "call-center-knowledge"
+                          "value": "customer-operations-knowledge"
                         },
                         {
                           "name": "AZURE_STORAGE_ACCOUNT_NAME",
@@ -557,8 +652,12 @@
                           "value": "call-artifacts"
                         },
                         {
-                          "name": "POST_CALL_QUEUE_NAME",
-                          "value": "post-call-jobs"
+                          "name": "POST_CALL_EVENT_HUB_FULLY_QUALIFIED_NAMESPACE",
+                          "value": "[format('{0}.servicebus.windows.net', variables('eventHubsNamespaceName'))]"
+                        },
+                        {
+                          "name": "POST_CALL_EVENT_HUB_NAME",
+                          "value": "[variables('postCallEventHubName')]"
                         },
                         {
                           "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
@@ -606,10 +705,11 @@
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('storageName'), 'default', 'call-artifacts')]",
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
                 "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', variables('storageName'), 'default', 'post-call-jobs')]",
-                "[resourceId('Microsoft.Search/searchServices', variables('searchName'))]",
+                "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubsNamespaceName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('foundryAccountName'), parameters('foundryProjectName'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName'))]",
+                "[resourceId('Microsoft.Search/searchServices', parameters('searchServiceName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
               ]
             },
@@ -655,7 +755,7 @@
                         },
                         {
                           "name": "AZURE_AI_PROJECT_ENDPOINT",
-                          "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], variables('foundryProjectName'))]"
+                          "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], parameters('foundryProjectName'))]"
                         },
                         {
                           "name": "FOUNDRY_AGENT_ID",
@@ -666,12 +766,32 @@
                           "value": ""
                         },
                         {
-                          "name": "POST_CALL_QUEUE_NAME",
-                          "value": "post-call-jobs"
+                          "name": "PostCallEventHub__fullyQualifiedNamespace",
+                          "value": "[format('{0}.servicebus.windows.net', variables('eventHubsNamespaceName'))]"
+                        },
+                        {
+                          "name": "POST_CALL_EVENT_HUB_NAME",
+                          "value": "[variables('postCallEventHubName')]"
+                        },
+                        {
+                          "name": "POST_CALL_EVENT_HUB_CONSUMER_GROUP",
+                          "value": "[variables('postCallConsumerGroupName')]"
                         },
                         {
                           "name": "AZURE_STORAGE_ACCOUNT_NAME",
                           "value": "[variables('storageName')]"
+                        },
+                        {
+                          "name": "COSMOS_ENDPOINT",
+                          "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')), '2023-04-15').documentEndpoint]"
+                        },
+                        {
+                          "name": "COSMOS_DATABASE_NAME",
+                          "value": "[variables('cosmosDatabaseName')]"
+                        },
+                        {
+                          "name": "COSMOS_CONTAINER_NAME",
+                          "value": "[variables('cosmosContainerName')]"
                         },
                         {
                           "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
@@ -692,10 +812,13 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Insights/components', variables('appiName'))]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
                 "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', variables('storageName'), 'default', 'post-call-jobs')]",
+                "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubsNamespaceName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('foundryAccountName'), parameters('foundryProjectName'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs/consumergroups', variables('eventHubsNamespaceName'), variables('postCallEventHubName'), variables('postCallConsumerGroupName'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
               ]
             },
@@ -894,75 +1017,105 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Search/searchServices', variables('searchName'))]",
-              "name": "[guid(resourceId('Microsoft.Search/searchServices', variables('searchName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'search-index-contributor')]",
+              "scope": "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName'))]",
+              "name": "[guid(resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'event-hubs-data-sender')]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
-                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7')]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2b629674-e913-4c01-ae53-ef4638d8f975')]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Search/searchServices', variables('searchName'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName'))]",
                 "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
               ]
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
-              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'foundry-user')]",
-              "properties": {
-                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
-                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')]",
-                "principalType": "ServicePrincipal"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
-                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
-              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'foundry-user')]",
+              "scope": "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName'))]",
+              "name": "[guid(resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'event-hubs-data-receiver')]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
-                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde')]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryAccountName'), variables('foundryProjectName'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('eventHubsNamespaceName'), variables('postCallEventHubName'))]",
                 "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
               ]
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
-              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'cognitiveservices-user')]",
+              "scope": "[resourceId('Microsoft.Search/searchServices', parameters('searchServiceName'))]",
+              "name": "[guid(resourceId('Microsoft.Search/searchServices', parameters('searchServiceName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'search-index-contributor')]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
-                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7')]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
+                "[resourceId('Microsoft.Search/searchServices', parameters('searchServiceName'))]",
                 "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
               ]
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
-              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'cognitiveservices-user')]",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('foundryAccountName'), parameters('foundryProjectName'))]",
+              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('foundryAccountName'), parameters('foundryProjectName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'foundry-user')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('foundryAccountName'), parameters('foundryProjectName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('foundryAccountName'), parameters('foundryProjectName'))]",
+              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('foundryAccountName'), parameters('foundryProjectName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'foundry-user')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('foundryAccountName'), parameters('foundryProjectName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]",
+              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName')), resourceId('Microsoft.App/containerApps', variables('webName')), 'cognitiveservices-user')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]",
+              "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'cognitiveservices-user')]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
                 "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName'))]",
                 "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
               ]
             },
@@ -978,6 +1131,20 @@
               "dependsOn": [
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
                 "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
+              "apiVersion": "2023-04-15",
+              "name": "[format('{0}/{1}', variables('cosmosName'), guid(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')), resourceId('Microsoft.App/containerApps', variables('workerName')), 'cosmos-data-contributor'))]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[format('{0}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002', resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')))]",
+                "scope": "/"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
               ]
             }
           ],
@@ -1004,31 +1171,43 @@
             },
             "searchEndpoint": {
               "type": "string",
-              "value": "[format('https://{0}.search.windows.net', variables('searchName'))]"
+              "value": "[format('https://{0}.search.windows.net', parameters('searchServiceName'))]"
             },
             "keyVaultName": {
               "type": "string",
               "value": "[variables('kvName')]"
             },
-            "postCallAnalyticsEndpoint": {
+            "eventHubsNamespace": {
               "type": "string",
-              "value": "post-call-jobs"
+              "value": "[format('{0}.servicebus.windows.net', variables('eventHubsNamespaceName'))]"
+            },
+            "postCallEventHubName": {
+              "type": "string",
+              "value": "[variables('postCallEventHubName')]"
+            },
+            "postCallConsumerGroupName": {
+              "type": "string",
+              "value": "[variables('postCallConsumerGroupName')]"
             },
             "foundryProjectEndpoint": {
               "type": "string",
-              "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], variables('foundryProjectName'))]"
+              "value": "[format('{0}api/projects/{1}', reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName')), '2025-10-01-preview').endpoints['AI Foundry API'], parameters('foundryProjectName'))]"
             },
             "voiceLiveEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('foundryAccountName')), '2025-10-01-preview').endpoint]"
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('foundryAccountName')), '2025-10-01-preview').endpoint]"
             },
             "foundryAccountName": {
               "type": "string",
-              "value": "[variables('foundryAccountName')]"
+              "value": "[parameters('foundryAccountName')]"
             },
             "foundryProjectName": {
               "type": "string",
-              "value": "[variables('foundryProjectName')]"
+              "value": "[parameters('foundryProjectName')]"
+            },
+            "foundryModelDeploymentName": {
+              "type": "string",
+              "value": "[parameters('foundryModelDeploymentName')]"
             },
             "voiceLiveModelDeploymentName": {
               "type": "string",
@@ -1097,15 +1276,23 @@
     },
     "AZURE_SEARCH_INDEX_NAME": {
       "type": "string",
-      "value": "call-center-knowledge"
+      "value": "customer-operations-knowledge"
     },
     "AZURE_KEY_VAULT_NAME": {
       "type": "string",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.keyVaultName.value]"
     },
-    "POST_CALL_QUEUE_NAME": {
+    "POST_CALL_EVENT_HUB_FULLY_QUALIFIED_NAMESPACE": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.postCallAnalyticsEndpoint.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.eventHubsNamespace.value]"
+    },
+    "POST_CALL_EVENT_HUB_NAME": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.postCallEventHubName.value]"
+    },
+    "POST_CALL_EVENT_HUB_CONSUMER_GROUP": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.postCallConsumerGroupName.value]"
     },
     "AZURE_AI_PROJECT_ENDPOINT": {
       "type": "string",
@@ -1126,6 +1313,10 @@
     "FOUNDRY_PROJECT_NAME": {
       "type": "string",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.foundryProjectName.value]"
+    },
+    "FOUNDRY_MODEL_DEPLOYMENT": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.foundryModelDeploymentName.value]"
     },
     "COSMOS_ACCOUNT_NAME": {
       "type": "string",

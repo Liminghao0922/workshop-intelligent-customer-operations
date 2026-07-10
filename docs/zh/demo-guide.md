@@ -28,7 +28,7 @@ dotnet run --project src/aspire/IntelligentCustomerOperations.AppHost
 | 知识库回答 | Foundry Agent 加 Azure AI Search tool |
 | 转人工卡片 | Foundry function tool 调用 CRM/联络中心 API |
 | 通话产物存储 | Azure Storage |
-| 通话后流程 | Azure Container Apps 上的 Azure Functions (queue trigger) |
+| 通话后流程 | Azure Container Apps 上的 Azure Functions (Event Hubs trigger) |
 | 摘要和情绪 | Foundry analytics agent/model |
 | 仪表板卡片 | Instructor console 或 Power BI |
 

@@ -1,67 +1,45 @@
-# Exercise 3 - Prepare Microsoft Foundry Project
+# Exercise 3 - Validate Microsoft Foundry
 
 ## Objective
 
-Create a Microsoft Foundry project and confirm a `gpt-5` deployment is available for the Knowledge and Call Analysis agents.
+Confirm that Shared Setup created the Microsoft Foundry account, project, and `gpt-5` deployment used by the two workshop agents.
 
-## Tasks
+## 1. Load the Outputs
 
-### 1. Open Azure Portal
-
-Navigate to [https://portal.azure.com](https://portal.azure.com) and sign in with your Azure account.
-
-In the Azure portal search box, search for `Foundry`, then open **Microsoft Foundry**.
-
-### 2. Create a Foundry Project
-
-Create a new Foundry project in resource group:
-
-- Select **Foundry** from the left menu
-- Select **+ Create**
-- Subscription: use your workshop subscription
-- **Resource group**: `rg-customer-operations-$postfix`
-- **Name**: `foundry-customer-operations-$postfix`
-- **Region**: use the same location from Exercise 1, for example `japaneast`
-- Project name: `proj-customer-operations-$postfix`
-- Review and create the project
-
-Wait until deployment completes successfully.
-
-### 3. Deploy a Language Model
-
-After deployment completes, select **Go to resource** and open your project.
-Select **Go to Foundry portal**. In the Foundry portal, make sure **New Foundry** is enabled.
-Navigate to **Build** → **Models** → **Deployments**, then select **Deploy** → **Deploy a base model**.
-Select `gpt-5`, then select **Deploy** → **Default settings**.
-Confirm that the deployment reaches **Succeeded** status.
-
-### 4. Get Project Endpoint
-
-Navigate to **Home** and copy the **Project endpoint**.
-
-Expected format:
-
-```text
-https://<your-foundry-resource>.services.ai.azure.com/api/projects/<your-project>
+```powershell
+$values = azd env get-values --output json | ConvertFrom-Json
+$resourceGroup = $values.AZURE_RESOURCE_GROUP
+$foundryAccount = $values.FOUNDRY_ACCOUNT_NAME
+$foundryProject = $values.FOUNDRY_PROJECT_NAME
+$foundryEndpoint = $values.AZURE_AI_PROJECT_ENDPOINT
+$modelDeployment = $values.FOUNDRY_MODEL_DEPLOYMENT
 ```
 
-### 5. Record Values
+## 2. Validate the Resources
 
-Add to your `.env`:
+```powershell
+az cognitiveservices account show `
+  --name $foundryAccount `
+  --resource-group $resourceGroup `
+  --query "{name:name, kind:kind, location:location}" `
+  --output table
 
-```env
-FOUNDRY_PROJECT_ENDPOINT=https://<your-foundry-resource>.services.ai.azure.com/api/projects/<your-project>
-FOUNDRY_MODEL_DEPLOYMENT=gpt-5
-FOUNDRY_AGENT_ID=
+az cognitiveservices account deployment show `
+  --name $foundryAccount `
+  --resource-group $resourceGroup `
+  --deployment-name $modelDeployment `
+  --query "{deployment:name, model:properties.model.name, version:properties.model.version, state:properties.provisioningState}" `
+  --output table
 ```
 
-> `FOUNDRY_AGENT_ID` is filled in Part 1. `FOUNDRY_ANALYTICS_AGENT_ID` is filled in Part 3.
+Open the project in New Microsoft Foundry and confirm the deployment status is **Succeeded**.
+
+Do not create an Agent here. The Knowledge Agent is created in Part 1 and the Call Analysis Agent is created in Part 3.
 
 ## Validation
 
-- [ ] Microsoft Foundry project created and accessible in the portal
-- [ ] Language model deployment confirmed as **Succeeded**
-- [ ] Project endpoint and model deployment name recorded in `.env`
-- [ ] Foundry project created from Azure portal
-- [ ] Project name uses the same `$postfix`
+- [ ] Foundry account and project are accessible
+- [ ] Project endpoint matches the `AZURE_AI_PROJECT_ENDPOINT` output
+- [ ] `gpt-5` deployment is **Succeeded**
+- [ ] No workshop Agent has been created yet
 - [ ] Ready to proceed to Part 1

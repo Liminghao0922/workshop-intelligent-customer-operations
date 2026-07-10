@@ -66,7 +66,11 @@ public sealed class CallAnalyzer(IHttpClientFactory httpClientFactory)
         ["sentiment"] = "concerned",
         ["entities"] = new JsonArray("Contoso Care", "subscription", "duplicate charge"),
         ["actionItems"] = new JsonArray("Create billing ticket", "Verify transactions", "Follow up with refund decision"),
-        ["resolutionStatus"] = call["ticket"] is not null ? "escalated" : "pending",
+        ["resolutionStatus"] = "unresolved",
+        ["followUpRequired"] = true,
+        ["followUpReason"] = "Billing specialist must review the duplicate charge.",
+        ["priority"] = "medium",
+        ["confidence"] = 0.92,
         ["redactionStatus"] = redaction.Applied ? "applied" : "not_needed",
         ["redactionSignals"] = new JsonArray(
             redaction.Signals.Select(signal => (JsonNode?)JsonValue.Create(signal)).ToArray()

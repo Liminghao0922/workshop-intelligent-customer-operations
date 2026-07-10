@@ -8,6 +8,9 @@ var host = new HostBuilder()
     {
         services.AddHttpClient();
         services.AddSingleton<CallAnalyzer>();
+        services.AddSingleton<DynamicsCaseClient>();
+        services.AddSingleton<CaseDecisionService>();
+        services.AddSingleton<EventProcessingStore>();
     })
     .Build();
 

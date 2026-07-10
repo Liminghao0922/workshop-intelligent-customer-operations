@@ -30,7 +30,7 @@ if (string.IsNullOrWhiteSpace(recordingContainerUri) && !string.IsNullOrWhiteSpa
 var gateway = builder
     .AddProject<Projects.IntelligentCustomerOperations_Gateway>("gateway")
     .WithExternalHttpEndpoints()
-    .WithEnvironment("POST_CALL_QUEUE_NAME", "post-call-jobs")
+    .WithEnvironment("POST_CALL_EVENT_HUB_NAME", "call-ended")
     .WithEnvironment(
         "ACS_RECORDING_ENABLED",
         Environment.GetEnvironmentVariable("ACS_RECORDING_ENABLED") ?? "true"

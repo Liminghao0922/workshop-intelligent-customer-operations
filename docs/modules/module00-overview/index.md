@@ -26,8 +26,8 @@ flowchart LR
     Customer[Customer] --> Voice[Voice Channel]
     Voice --> Knowledge[Knowledge Agent]
     Knowledge --> Search[Azure AI Search]
-    Voice -->|Call ended| Queue[Post-call Queue]
-    Queue --> Function[Azure Function]
+    Voice -->|Call ended| EventHub[Call-ended Event Hub]
+    EventHub --> Function[Azure Function]
     Function --> Analysis[Call Analysis Agent]
     Analysis --> Decision{Follow-up required?}
     Decision -->|Yes| Dynamics[Dynamics 365 Case]
@@ -46,7 +46,7 @@ The solution is composed of seven major components:
 | Azure AI Search | Provides fast, low-latency vector search over indexed enterprise content |
 | Voice Channel | Connects the customer call to the Knowledge Agent |
 | Voice Gateway | Handles ACS events, speech recognition, playback, and conversation state |
-| Post-call Queue | Decouples call completion from asynchronous processing |
+| Call-ended Event Hub | Decouples call completion from asynchronous processing |
 | Call Analysis Agent | Summarizes the transcript and recommends follow-up action |
 | Azure Function | Validates the analysis and executes deterministic business actions |
 | Dynamics 365 | Stores cases that require human follow-up |

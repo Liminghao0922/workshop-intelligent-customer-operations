@@ -28,7 +28,7 @@ Open the Aspire dashboard URL shown in the terminal and browse to the `gateway` 
 | Knowledge answer | Foundry Agent with Azure AI Search tool |
 | Handoff card | Foundry function tool calling CRM/contact-center APIs |
 | Stored call artifact | Azure Storage |
-| Post-call workflow | Azure Functions (queue trigger) on Azure Container Apps |
+| Post-call workflow | Azure Functions (Event Hubs trigger) on Azure Container Apps |
 | Summary and sentiment | Foundry analytics agent/model |
 | Dashboard cards | Instructor console or Power BI |
 
