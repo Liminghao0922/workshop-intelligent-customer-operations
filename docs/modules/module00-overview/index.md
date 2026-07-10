@@ -6,56 +6,59 @@ Help participants understand the business scenario, the customer request lifecyc
 
 ## Business Scenario
 
-Customer support teams often receive repetitive requests across email, portals, call centers, and service desks. Handling these requests manually is slow, inconsistent, and costly at scale.
+Customer support teams receive repetitive questions by phone, but every call still requires a consistent answer, a complete transcript, and reliable follow-up when the issue remains unresolved.
 
 This workshop demonstrates how AI agents can help customer operations teams:
 
-- Understand incoming customer requests
-- Retrieve relevant enterprise knowledge
-- Execute business actions automatically
-- Escalate to human agents when needed
+- Ground answers in approved enterprise knowledge
+- Serve customers through a real-time voice channel
+- Review completed calls asynchronously
+- Create Dynamics 365 cases when follow-up is required
 
 The result is a faster, more consistent customer operations experience — without replacing the human judgment required for complex or sensitive situations.
 
-## Request-to-Resolution Journey
+## Call Lifecycle
 
 The core storyline of this workshop follows a single customer request through the full resolution lifecycle:
 
-```text
-Customer Request
-  ↓
-Customer Operations App      (user-facing request interface)
-  ↓
-Microsoft Foundry Agent       (reasoning and orchestration layer)
-  ↓
-Azure AI Search / Knowledge          (knowledge foundation)
-  ↓
-Business Action Tool         (operational execution layer)
-  ↓
-Response / Resolution / Escalation
+```mermaid
+flowchart LR
+    Customer[Customer] --> Voice[Voice Channel]
+    Voice --> Knowledge[Knowledge Agent]
+    Knowledge --> Search[Azure AI Search]
+    Voice -->|Call ended| Queue[Post-call Queue]
+    Queue --> Function[Azure Function]
+    Function --> Analysis[Call Analysis Agent]
+    Analysis --> Decision{Follow-up required?}
+    Decision -->|Yes| Dynamics[Dynamics 365 Case]
+    Decision -->|No| Complete[Store analysis]
 ```
 
-Each step maps directly to a workshop module. By Module 06, participants will have a working end-to-end flow.
+The workshop follows this lifecycle in three parts: prepare knowledge, serve the live call, and complete post-call analysis and action.
 
 ## Target Architecture
 
-The solution is composed of five major components:
+The solution is composed of seven major components:
 
 | Component | Role |
-|---|---|
-| Customer Operations App | Receives customer requests and surfaces responses |
-| Microsoft Foundry Agent | Orchestrates reasoning, tool calling, and response generation |
+| --- | --- |
+| Knowledge Agent | Answers customer questions using approved enterprise knowledge |
 | Azure AI Search | Provides fast, low-latency vector search over indexed enterprise content |
-| Business Action Tool | Executes operational tasks such as ticket creation or order lookup |
-| Escalation Path | Routes unresolved or sensitive requests to human agents |
+| Voice Channel | Connects the customer call to the Knowledge Agent |
+| Voice Gateway | Handles ACS events, speech recognition, playback, and conversation state |
+| Post-call Queue | Decouples call completion from asynchronous processing |
+| Call Analysis Agent | Summarizes the transcript and recommends follow-up action |
+| Azure Function | Validates the analysis and executes deterministic business actions |
+| Dynamics 365 | Stores cases that require human follow-up |
 
-## Why Azure AI Search + Microsoft Foundry Agent
+## Agent Responsibilities
 
-| Capability | What it provides |
-|---|---|
-| Microsoft Foundry Agent | Structured agent reasoning, tool calling, multi-turn conversation |
-| Azure AI Search | Enterprise knowledge grounding from indexed documents and data |
-| Combined | Agent answers are grounded in real enterprise content, not just model knowledge |
+| Component | Responsibility |
+| --- | --- |
+| Knowledge Agent | Retrieve knowledge and generate grounded customer-facing answers |
+| Voice Channel | Transport speech and text; it is not a separate agent |
+| Call Analysis Agent | Produce structured post-call analysis and a ticket recommendation |
+| Azure Function | Decide and perform the Dynamics write using validated agent output |
 
 Azure AI Search indexes your organization's existing knowledge — product documentation, support policies, operational data — and serves it to the agent in real time with sub-second latency.
 
@@ -63,11 +66,12 @@ Azure AI Search indexes your organization's existing knowledge — product docum
 
 During this workshop, participants will:
 
-- Prepare enterprise knowledge for grounding
-- Build or configure an AI agent for customer operations
-- Connect the agent to knowledge and business action tools
-- Deploy or run a customer operations application
-- Validate end-to-end request-to-resolution scenarios
+- Build a Knowledge Agent connected to Azure AI Search
+- Connect an ACS-based Voice Channel to the Knowledge Agent
+- Publish a call-ended event after the conversation completes
+- Build a Call Analysis Agent with a structured output contract
+- Process post-call events with an Azure Function
+- Create a Dynamics 365 case only when follow-up is required
 
 This workshop focuses on a minimum runnable customer operations experience. The goal is a working flow — not a production-hardened deployment.
 
@@ -88,15 +92,12 @@ Future modules or extensions can replace workshop-scope components with fully Az
 ## Module Roadmap
 
 | Module | Name | Focus |
-|---|---|---|
-| 00 | Workshop Overview | Business scenario, architecture, scope |
-| 01 | Prerequisites & Environment Setup | Azure, Cloud Shell, Foundry, and Azure AI Search |
-| 02 | Knowledge Foundation with Azure AI Search | Enterprise knowledge index and retrieval |
-| 03 | Build AI Agent with Microsoft Foundry | Agent creation, instructions, knowledge connection |
-| 04 | Business Actions & Tool Calling | Connect agent to backend APIs and operations |
-| 05 | Deploy Customer Operations App | Deploy frontend, API, and agent integration |
-| 06 | End-to-End Validation | Request-to-resolution scenario validation |
-| 07 | Multi-Agent Extension | Supervisor and specialist agent patterns |
+| --- | --- | --- |
+| 00 | Workshop Overview | Call lifecycle, architecture, and scope |
+| 01 | Shared Environment Setup | Azure, Foundry, Search, ACS, Storage, and hosting prerequisites |
+| Part 1 | Build the Knowledge Agent | Azure AI Search RAG and grounded-answer validation |
+| Part 2 | Build the Voice Channel | Connect ACS calls to the Knowledge Agent |
+| Part 3 | Analyze Calls and Create Tickets | Call-ended event, Azure Function, Analysis Agent, and Dynamics 365 |
 
 ## Recommended Read Order
 
@@ -110,7 +111,7 @@ Future modules or extensions can replace workshop-scope components with fully Az
 By the end of Module 00, participants should have a shared understanding of:
 
 - The business problem this workshop addresses
-- The target customer request lifecycle
+- The target customer call lifecycle
 - The role of each major component
 - The workshop module flow
 - What will be implemented during the workshop
@@ -118,7 +119,7 @@ By the end of Module 00, participants should have a shared understanding of:
 
 ## Exit Criteria
 
-- [ ] Participants understand the customer request lifecycle
+- [ ] Participants understand the customer call lifecycle
 - [ ] Participants understand the target architecture and key components
 - [ ] Participants understand the workshop scope and expected outcome
 - [ ] Participants understand which capabilities are future expansion items

@@ -12,4 +12,4 @@ You have prepared the full environment for the workshop.
 
 ## Ready for Next Module
 
-Proceed to **Module 02 - Knowledge Foundation with Azure AI Search**.
+Proceed to **Part 1 - Build the Knowledge Agent**.

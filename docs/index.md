@@ -1,59 +1,55 @@
 # Workshop - Intelligent Customer Operations
 
-## Build AI Customer Operations Agents with Microsoft Foundry and Azure AI Search
+## Build an AI-Powered Voice Support Lifecycle
 
-This workshop guides learners through building an intelligent customer request automation solution.
+This workshop guides learners through building an intelligent customer support lifecycle with grounded answers during a voice call and automated follow-up after the call.
 
 !!! abstract "What you will build"
-    An end-to-end customer operations application where a user submits a request, an AI agent understands the intent, retrieves enterprise knowledge from Azure AI Search, calls business APIs when needed, and returns a response or escalation decision.
+    A Knowledge Agent grounded by Azure AI Search, an ACS Voice Channel that connects customers to that agent, and an event-driven post-call workflow that analyzes the conversation and creates a Dynamics 365 case when follow-up is required.
 
 ## Target Scenario
 
-A customer contacts the support team with requests such as:
+A customer calls the support team with questions such as:
 
 - “How do I configure product warranty registration?”
-- “Can you check the status of my repair request?”
-- “I need to escalate this issue to a specialist.”
+- “Why was I charged twice for my subscription?”
+- “This issue is still unresolved. What happens next?”
 
 The solution will use:
 
 - **Azure AI Search** for enterprise knowledge grounding.
-- **Microsoft Foundry Agent** for reasoning and orchestration.
-- **Business APIs / Azure Functions** for actions such as order lookup or ticket creation.
-- **Customer Operations App** as the end-user interface.
+- **Knowledge Agent** for grounded, multilingual answers during the call.
+- **Azure Communication Services** for the voice channel.
+- **Call Analysis Agent** for structured post-call review.
+- **Azure Functions and Storage Queue** for event-driven processing.
+- **Dynamics 365 Customer Service** for cases requiring follow-up.
 
 ## Learning Path
 
 ```text
-Overview
+Overview and Shared Setup
   ↓
-Environment Setup
+Part 1: Build the Knowledge Agent
   ↓
-Knowledge Foundation with Azure AI Search
+Part 2: Build the Voice Channel
   ↓
-Build AI Agent with Microsoft Foundry
-  ↓
-Business Actions & Tool Calling
-  ↓
-Deploy Application
-  ↓
-End-to-End Validation
-  ↓
-Multi-Agent Extension
+Part 3: Analyze Calls and Create Tickets
 ```
 
 ## Architecture at a Glance
 
 ```mermaid
-graph TD
-    A[Customer] --> B[Customer Operations Web App]
-    B --> C[Backend API]
-    C --> D[Microsoft Foundry Agent]
-    D --> E[Microsoft Azure AI Search]
-    E --> F[Enterprise Knowledge]
-    D --> G[Business Actions]
-    G --> H[Order / Case / Service APIs]
-    D --> I[Human Approval / Escalation]
+flowchart LR
+  Customer[Customer] --> ACS[ACS Voice Channel]
+  ACS --> Gateway[Voice Gateway]
+  Gateway --> Knowledge[Knowledge Agent]
+  Knowledge --> Search[Azure AI Search]
+  ACS -->|Call ended| Queue[Storage Queue]
+  Queue --> Function[Azure Function]
+  Function --> Analysis[Call Analysis Agent]
+  Analysis --> Decision{Follow-up required?}
+  Decision -->|Yes| Dynamics[Dynamics 365 Case]
+  Decision -->|No| Results[Store analysis]
 ```
 
 ## Recommended Audience
@@ -66,5 +62,4 @@ graph TD
 
 ## Workshop Outcome
 
-By the end of this workshop, learners should understand how to design and implement a customer operations automation solution combining data, AI agents, and business systems.
-
+By the end of this workshop, learners can demonstrate a complete customer-call lifecycle: grounded voice assistance, a durable call-ended event, structured post-call analysis, and conditional Dynamics 365 case creation.

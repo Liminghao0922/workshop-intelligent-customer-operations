@@ -1,5 +1,5 @@
 site_name: Intelligent Customer Operations
-site_description: Build AI customer operations agents with Microsoft Foundry and Azure AI Search
+site_description: Build a grounded voice support and post-call operations lifecycle with Microsoft Foundry
 site_author: Microsoft
 repo_name: workshop-intelligent-customer-operations
 repo_url: https://github.com/YOUR-ORG/workshop-intelligent-customer-operations
@@ -25,65 +25,41 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
-markdown_extensions:
-  - admonition
-  - attr_list
-  - md_in_html
-  - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.tasklist:
-      custom_checkbox: true
-  - toc:
-      permalink: true
+markdown_extensions: [admonition, attr_list, pymdownx.superfences, pymdownx.details, {pymdownx.tabbed: {alternate_style: true}}, {pymdownx.tasklist: {custom_checkbox: true}}, {toc: {permalink: true}}]
+
+extra_javascript:
+    - "https://unpkg.com/mermaid@11/dist/mermaid.min.js"
+    - javascripts/mermaid.js
 
 nav:
   - Home: index.md
   - Workshop:
       - Overview: modules/module00-overview/index.md
-      - Prerequisites & Setup:
+      - Shared Environment Setup:
           - Overview: modules/module01-environment-setup/index.md
           - Exercise 1 - Azure Environment: modules/module01-environment-setup/exercise01-azure-environment.md
           - Exercise 2 - Azure AI Search Service: modules/module01-environment-setup/exercise02-azure-ai-search-service.md
           - Exercise 3 - AI Foundry Project: modules/module01-environment-setup/exercise03-ai-foundry-project.md
           - Summary: modules/module01-environment-setup/summary.md
-      - Knowledge Foundation with Azure AI Search:
-          - Overview: modules/module02-knowledge-foundation/index.md
-          - Exercise 1 - Prepare Data: modules/module02-knowledge-foundation/exercise01-prepare-data.md
-          - Exercise 2 - Configure Azure AI Search: modules/module02-knowledge-foundation/exercise02-configure-fabric-iq.md
-          - Exercise 3 - Validate Knowledge Answers: modules/module02-knowledge-foundation/exercise03-validate-knowledge.md
-          - Summary: modules/module02-knowledge-foundation/summary.md
-      - Build AI Agent with Microsoft Foundry:
-          - Overview: modules/module03-build-agent/index.md
-          - Exercise 1 - Create Agent: modules/module03-build-agent/exercise01-create-agent.md
-          - Exercise 2 - Configure Instructions: modules/module03-build-agent/exercise02-configure-instructions.md
-          - Exercise 3 - Connect Knowledge: modules/module03-build-agent/exercise03-connect-knowledge.md
-          - Summary: modules/module03-build-agent/summary.md
-      - Business Actions & Tool Calling:
-          - Overview: modules/module04-business-actions/index.md
-          - Exercise 1 - Business API: modules/module04-business-actions/exercise01-business-api.md
-          - Exercise 2 - Tool Definition: modules/module04-business-actions/exercise02-tool-definition.md
-          - Exercise 3 - Execute Actions: modules/module04-business-actions/exercise03-execute-actions.md
-          - Summary: modules/module04-business-actions/summary.md
-      - Deploy Customer Operations App:
-          - Overview: modules/module05-deploy-application/index.md
-          - Exercise 1 - Deploy Backend: modules/module05-deploy-application/exercise01-deploy-backend.md
-          - Exercise 2 - Deploy Frontend: modules/module05-deploy-application/exercise02-deploy-frontend.md
-          - Exercise 3 - Configure App Settings: modules/module05-deploy-application/exercise03-configure-app-settings.md
-          - Summary: modules/module05-deploy-application/summary.md
-      - End-to-End Validation:
-          - Overview: modules/module06-end-to-end-validation/index.md
-          - Scenario 1 - FAQ Request: modules/module06-end-to-end-validation/scenario01-faq-request.md
-          - Scenario 2 - Order Status: modules/module06-end-to-end-validation/scenario02-order-status.md
-          - Scenario 3 - Escalation: modules/module06-end-to-end-validation/scenario03-escalation.md
-          - Summary: modules/module06-end-to-end-validation/summary.md
-      - Multi-Agent Extension:
-          - Overview: modules/module07-multi-agent-extension/index.md
-          - Exercise 1 - Agent Roles: modules/module07-multi-agent-extension/exercise01-agent-roles.md
-          - Exercise 2 - Supervisor Flow: modules/module07-multi-agent-extension/exercise02-supervisor-flow.md
-          - Exercise 3 - Advanced Validation: modules/module07-multi-agent-extension/exercise03-advanced-validation.md
-          - Summary: modules/module07-multi-agent-extension/summary.md
+      - Part 1 - Knowledge Agent:
+          - Overview: modules/module02-knowledge-agent/index.md
+          - Exercise 1 - Prepare Knowledge: modules/module02-knowledge-agent/exercise01-prepare-knowledge.md
+          - Exercise 2 - Create Agent: modules/module02-knowledge-agent/exercise02-create-agent.md
+          - Exercise 3 - Validate RAG: modules/module02-knowledge-agent/exercise03-validate-rag.md
+          - Summary: modules/module02-knowledge-agent/summary.md
+      - Part 2 - Voice Channel:
+          - Overview: modules/module03-voice-channel/index.md
+          - Exercise 1 - Deploy Gateway: modules/module03-voice-channel/exercise01-deploy-gateway.md
+          - Exercise 2 - Connect ACS: modules/module03-voice-channel/exercise02-connect-acs.md
+          - Exercise 3 - Test Call: modules/module03-voice-channel/exercise03-test-call.md
+          - Summary: modules/module03-voice-channel/summary.md
+      - Part 3 - Post-call Operations:
+          - Overview: modules/module04-post-call-analysis/index.md
+          - Exercise 1 - Create Analysis Agent: modules/module04-post-call-analysis/exercise01-create-analysis-agent.md
+          - Exercise 2 - Call-ended Event: modules/module04-post-call-analysis/exercise02-call-ended-event.md
+          - Exercise 3 - Configure Dynamics: modules/module04-post-call-analysis/exercise03-configure-dynamics.md
+          - Exercise 4 - Validate Lifecycle: modules/module04-post-call-analysis/exercise04-validate-lifecycle.md
+          - Summary: modules/module04-post-call-analysis/summary.md
   - Architecture:
       - Solution Architecture: architecture/solution-architecture.md
       - Sequence Flow: architecture/sequence-flow.md

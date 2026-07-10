@@ -228,7 +228,7 @@ azd deploy
 
 - 构建容器镜像
 - 推送镜像到 ACR
-- 更新 Gateway 与 Worker 的 Container App 版本
+- 更新 Gateway、API、Portal 与 Worker 的 Container App 版本
 
 首次部署通常比后续慢，等待 5-15 分钟都正常。
 
@@ -246,20 +246,19 @@ azd env get-values
 
 - `WEB_URL`
 - `API_URL`
+- `FRONTEND_URL`
 
 ### 6.2 打开应用
 
 在浏览器访问：
 
-- `https://<WEB_URL>`
+- `https://<FRONTEND_URL>`
 
 ### 6.3 调用健康检查（示例）
 
 ```powershell
-Invoke-RestMethod -Method Get -Uri "https://<WEB_URL>/health"
+Invoke-RestMethod -Method Get -Uri "https://<WEB_URL>/healthz"
 ```
-
-如果你的接口没有 `/health`，可先访问首页，或按项目现有 API 进行验证。
 
 ---
 
@@ -376,8 +375,8 @@ azd up
 
 部署完成后，逐项确认：
 
-1. `azd env get-values` 能看到 `WEB_URL`。
-2. 浏览器可打开 `https://<WEB_URL>`。
+1. `azd env get-values` 能看到 `WEB_URL` 和 `FRONTEND_URL`。
+2. 浏览器可打开 `https://<FRONTEND_URL>`。
 3. Gateway 接口可响应。
 4. ACS 回调已指向正确 URL。
 5. 测试通话后可看到 transcript 与 post-call 分析链路执行。

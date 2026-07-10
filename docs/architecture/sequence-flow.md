@@ -3,20 +3,36 @@
 ```mermaid
 sequenceDiagram
     participant Customer
-    participant Channel as ACS/Twilio
-    participant Gateway
-    participant Foundry as Foundry Agent
-    participant Knowledge as Azure AI Search
-    participant Ticket as Ticket/Dynamics
+    participant ACS as ACS Voice Channel
+    participant Gateway as Voice Gateway
+    participant Knowledge as Knowledge Agent
+    participant Search as Azure AI Search
+    participant Queue as Storage Queue
+    participant Worker as Azure Function
+    participant Analysis as Call Analysis Agent
+    participant Dynamics as Dynamics 365
 
-    Customer->>Channel: Start voice call
-    Channel->>Gateway: POST /api/channel/events
-    Gateway->>Foundry: Generate response
-    Foundry->>Knowledge: Retrieve grounded context
-    Foundry-->>Gateway: Reply + conversation state
-    Gateway-->>Channel: Callback response
-    Channel-->>Customer: Play response
-    Gateway->>Ticket: POST /api/foundry/tools/create-ticket (if escalation)
-    Gateway->>Gateway: POST /api/admin/analyze/{callId} (post-call)
-    Gateway-->>Customer: Resolution or handoff
+    Customer->>ACS: Call support number
+    ACS->>Gateway: IncomingCall via Event Grid
+    Gateway->>ACS: Answer with callback URI
+    ACS->>Gateway: RecognizeCompleted
+    Gateway->>Knowledge: Customer utterance
+    Knowledge->>Search: Retrieve approved content
+    Search-->>Knowledge: Grounding passages
+    Knowledge-->>Gateway: Concise answer
+    Gateway->>ACS: Play answer
+    ACS-->>Customer: Synthesized speech
+    Customer->>ACS: End call
+    ACS->>Gateway: CallDisconnected
+    Gateway->>Queue: customer.call.ended
+    Queue->>Worker: At-least-once delivery
+    Worker->>Worker: Validate and mask PII
+    Worker->>Analysis: Masked transcript and call ID
+    Analysis-->>Worker: Structured recommendation
+    Worker->>Worker: Validate schema and apply policy
+    opt Follow-up required
+        Worker->>Dynamics: Upsert Case by call ID
+        Dynamics-->>Worker: Case ID and case number
+    end
+    Worker->>Worker: Store idempotent result
 ```

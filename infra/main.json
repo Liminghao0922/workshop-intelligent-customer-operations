@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "7625134805447614609"
+      "templateHash": "12483597902392024381"
     }
   },
   "parameters": {
@@ -38,7 +38,7 @@
       "defaultValue": ""
     },
     "acsCallbackSecret": {
-      "type": "string",
+      "type": "securestring",
       "defaultValue": ""
     },
     "publicBaseUrl": {
@@ -123,7 +123,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "6367600746409224599"
+              "templateHash": "9213393979523823783"
             }
           },
           "parameters": {
@@ -159,7 +159,7 @@
               "defaultValue": ""
             },
             "acsCallbackSecret": {
-              "type": "string",
+              "type": "securestring",
               "defaultValue": ""
             },
             "publicBaseUrl": {
@@ -191,6 +191,8 @@
             "envName": "[format('cae-{0}-{1}', parameters('environmentName'), variables('suffix'))]",
             "webName": "[take(format('ca-web-{0}-{1}', variables('name'), variables('suffix')), 32)]",
             "workerName": "[take(format('ca-worker-{0}-{1}', variables('name'), variables('suffix')), 32)]",
+            "apiName": "[take(format('ca-api-{0}-{1}', variables('name'), variables('suffix')), 32)]",
+            "portalName": "[take(format('ca-portal-{0}-{1}', variables('name'), variables('suffix')), 32)]",
             "cosmosName": "[take(format('cos{0}{1}', variables('name'), variables('suffix')), 44)]",
             "cosmosDatabaseName": "smart-call-center",
             "cosmosContainerName": "call-sessions"
@@ -698,6 +700,108 @@
               ]
             },
             {
+              "type": "Microsoft.App/containerApps",
+              "apiVersion": "2024-03-01",
+              "name": "[variables('apiName')]",
+              "location": "[parameters('location')]",
+              "tags": "[union(parameters('tags'), createObject('azd-service-name', 'api'))]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+                "configuration": {
+                  "activeRevisionsMode": "Single",
+                  "ingress": {
+                    "external": false,
+                    "targetPort": 8080
+                  }
+                },
+                "template": {
+                  "containers": [
+                    {
+                      "name": "api",
+                      "image": "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest",
+                      "env": [
+                        {
+                          "name": "GATEWAY_API_BASE_URL",
+                          "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01').configuration.ingress.fqdn)]"
+                        },
+                        {
+                          "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                          "value": "[reference(resourceId('Microsoft.Insights/components', variables('appiName')), '2020-02-02').ConnectionString]"
+                        }
+                      ],
+                      "resources": {
+                        "cpu": "[json('0.25')]",
+                        "memory": "0.5Gi"
+                      }
+                    }
+                  ],
+                  "scale": {
+                    "minReplicas": 1,
+                    "maxReplicas": 2
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Insights/components', variables('appiName'))]",
+                "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('webName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.App/containerApps",
+              "apiVersion": "2024-03-01",
+              "name": "[variables('portalName')]",
+              "location": "[parameters('location')]",
+              "tags": "[union(parameters('tags'), createObject('azd-service-name', 'portal'))]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]",
+                "configuration": {
+                  "activeRevisionsMode": "Single",
+                  "ingress": {
+                    "external": true,
+                    "targetPort": 8080
+                  }
+                },
+                "template": {
+                  "containers": [
+                    {
+                      "name": "portal",
+                      "image": "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest",
+                      "env": [
+                        {
+                          "name": "BACKEND_API_BASE_URL",
+                          "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', variables('apiName')), '2024-03-01').configuration.ingress.fqdn)]"
+                        },
+                        {
+                          "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                          "value": "[reference(resourceId('Microsoft.Insights/components', variables('appiName')), '2020-02-02').ConnectionString]"
+                        }
+                      ],
+                      "resources": {
+                        "cpu": "[json('0.25')]",
+                        "memory": "0.5Gi"
+                      }
+                    }
+                  ],
+                  "scale": {
+                    "minReplicas": 1,
+                    "maxReplicas": 2
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.App/containerApps', variables('apiName'))]",
+                "[resourceId('Microsoft.Insights/components', variables('appiName'))]",
+                "[resourceId('Microsoft.App/managedEnvironments', variables('envName'))]"
+              ]
+            },
+            {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
               "scope": "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
@@ -740,6 +844,36 @@
               "dependsOn": [
                 "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
                 "[resourceId('Microsoft.App/containerApps', variables('workerName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+              "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', variables('acrName')), resourceId('Microsoft.App/containerApps', variables('apiName')), 'acrpull')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('apiName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('apiName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+              "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', variables('acrName')), resourceId('Microsoft.App/containerApps', variables('portalName')), 'acrpull')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('portalName')), '2024-03-01', 'full').identity.principalId]",
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerRegistry/registries', variables('acrName'))]",
+                "[resourceId('Microsoft.App/containerApps', variables('portalName'))]"
               ]
             },
             {
@@ -848,9 +982,17 @@
             }
           ],
           "outputs": {
-            "webUrl": {
+            "gatewayUrl": {
               "type": "string",
               "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01').configuration.ingress.fqdn)]"
+            },
+            "apiUrl": {
+              "type": "string",
+              "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', variables('apiName')), '2024-03-01').configuration.ingress.fqdn)]"
+            },
+            "portalUrl": {
+              "type": "string",
+              "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', variables('portalName')), '2024-03-01').configuration.ingress.fqdn)]"
             },
             "acrLoginServer": {
               "type": "string",
@@ -927,11 +1069,19 @@
     },
     "WEB_URL": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.webUrl.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.gatewayUrl.value]"
+    },
+    "GATEWAY_URL": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.gatewayUrl.value]"
     },
     "API_URL": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.webUrl.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.apiUrl.value]"
+    },
+    "FRONTEND_URL": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-{0}', parameters('environmentName'))), 'Microsoft.Resources/deployments', 'smart-call-center'), '2025-04-01').outputs.portalUrl.value]"
     },
     "AZURE_CONTAINER_REGISTRY_ENDPOINT": {
       "type": "string",

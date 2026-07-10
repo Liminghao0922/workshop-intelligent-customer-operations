@@ -51,7 +51,7 @@ After deployment, configure these values if they were not provisioned automatica
 
 ## Post-deployment setup
 
-1. Open the gateway endpoint from `WEB_URL`.
+1. Open the Portal endpoint from `FRONTEND_URL` and verify the Gateway health endpoint at `WEB_URL/healthz`.
 2. Seed knowledge from the console.
 3. In ACS, configure callbacks to `WEB_URL/api/acs/events` and `WEB_URL/api/acs/callbacks/{callId}` according to the ACS Call Automation flow you use.
 4. Configure the Foundry Agent with:
@@ -74,5 +74,5 @@ Optional, if you want to run the Aspire app from the same Cloud Shell session:
 dotnet run --project src/aspire/IntelligentCustomerOperations.AppHost
 ```
 
-The Aspire AppHost orchestrates the `gateway` and `postcall-worker` services locally. In Azure, the gateway publishes post-call events to Storage Queue, and the post-call Function consumes those events asynchronously on Azure Container Apps.
+The Aspire AppHost orchestrates `gateway`, `api`, `portal`, and `postcall-worker` locally. In Azure, the Portal calls API, API calls Gateway, and the Gateway publishes post-call events to Storage Queue for the Worker to consume asynchronously.
 

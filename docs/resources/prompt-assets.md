@@ -6,7 +6,8 @@ Prompt assets are stored under `prompts/`.
 
 | File | Purpose |
 |---|---|
-| `customer-operations-agent.md` | Main agent instruction |
-| `knowledge-agent.md` | Optional specialist agent |
-| `action-agent.md` | Optional specialist agent |
-| `supervisor-agent.md` | Multi-agent routing prompt |
+| `customer-operations-agent.md` | Legacy baseline retained for comparison |
+| `knowledge-agent.md` | Minimal Knowledge Agent instruction asset |
+| `call-analysis-agent.md` | Required structured Call Analysis Agent contract |
+| `action-agent.md` | Optional extension outside the core workshop |
+| `supervisor-agent.md` | Optional extension outside the core workshop |

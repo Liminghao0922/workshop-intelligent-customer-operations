@@ -10,4 +10,4 @@ Customer Operations covers broader workflows such as service requests, support p
 
 ## Can this be extended to multi-agent architecture?
 
-Yes. Module 07 provides a conceptual extension using supervisor and specialist agents.
+No supervisor agent is required for the core workshop. The solution intentionally uses two agents with separate responsibilities: live knowledge answering and post-call analysis.

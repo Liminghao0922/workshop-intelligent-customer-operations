@@ -8,6 +8,7 @@ param voiceLiveModelName string = ''
 param voiceLiveModelVersion string = ''
 param voiceLiveModelCapacity int = 50
 param acsConnectionString string = ''
+@secure()
 param acsCallbackSecret string = ''
 param publicBaseUrl string = ''
 param foundryAgentId string = ''
@@ -28,6 +29,8 @@ var appiName = 'appi-${environmentName}-${suffix}'
 var envName = 'cae-${environmentName}-${suffix}'
 var webName = take('ca-web-${name}-${suffix}', 32)
 var workerName = take('ca-worker-${name}-${suffix}', 32)
+var apiName = take('ca-api-${name}-${suffix}', 32)
+var portalName = take('ca-portal-${name}-${suffix}', 32)
 var cosmosName = take('cos${name}${suffix}', 44)
 var cosmosDatabaseName = 'smart-call-center'
 var cosmosContainerName = 'call-sessions'
@@ -380,6 +383,84 @@ resource worker 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
+resource api 'Microsoft.App/containerApps@2024-03-01' = {
+  name: apiName
+  location: location
+  tags: union(tags, { 'azd-service-name': 'api' })
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    managedEnvironmentId: env.id
+    configuration: {
+      activeRevisionsMode: 'Single'
+      ingress: {
+        external: false
+        targetPort: 8080
+      }
+    }
+    template: {
+      containers: [
+        {
+          name: 'api'
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          env: [
+            { name: 'GATEWAY_API_BASE_URL', value: 'https://${web.properties.configuration.ingress.fqdn}' }
+            { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appi.properties.ConnectionString }
+          ]
+          resources: {
+            cpu: json('0.25')
+            memory: '0.5Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 2
+      }
+    }
+  }
+}
+
+resource portal 'Microsoft.App/containerApps@2024-03-01' = {
+  name: portalName
+  location: location
+  tags: union(tags, { 'azd-service-name': 'portal' })
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    managedEnvironmentId: env.id
+    configuration: {
+      activeRevisionsMode: 'Single'
+      ingress: {
+        external: true
+        targetPort: 8080
+      }
+    }
+    template: {
+      containers: [
+        {
+          name: 'portal'
+          image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          env: [
+            { name: 'BACKEND_API_BASE_URL', value: 'https://${api.properties.configuration.ingress.fqdn}' }
+            { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appi.properties.ConnectionString }
+          ]
+          resources: {
+            cpu: json('0.25')
+            memory: '0.5Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 2
+      }
+    }
+  }
+}
+
 resource webAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(acr.id, web.id, 'acrpull')
   scope: acr
@@ -405,6 +486,26 @@ resource workerAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: acr
   properties: {
     principalId: worker.identity.principalId
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource apiAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(acr.id, api.id, 'acrpull')
+  scope: acr
+  properties: {
+    principalId: api.identity.principalId
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource portalAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(acr.id, portal.id, 'acrpull')
+  scope: acr
+  properties: {
+    principalId: portal.identity.principalId
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
     principalType: 'ServicePrincipal'
   }
@@ -480,7 +581,9 @@ resource webCosmosDataContributor 'Microsoft.DocumentDB/databaseAccounts/sqlRole
   }
 }
 
-output webUrl string = 'https://${web.properties.configuration.ingress.fqdn}'
+output gatewayUrl string = 'https://${web.properties.configuration.ingress.fqdn}'
+output apiUrl string = 'https://${api.properties.configuration.ingress.fqdn}'
+output portalUrl string = 'https://${portal.properties.configuration.ingress.fqdn}'
 output acrLoginServer string = acr.properties.loginServer
 output storageAccountName string = storage.name
 output searchEndpoint string = 'https://${search.name}.search.windows.net'

@@ -1,4 +1,4 @@
-# Module 01 - Prerequisites & Environment Setup
+# Module 01 - Shared Environment Setup
 
 ## Goal
 
@@ -7,8 +7,8 @@ Prepare the Azure services, source code, and Cloud Shell access needed to run al
 By the end of this module, every participant should have working access to:
 
 - An Azure resource group with required services provisioned
-- An Azure AI Search service ready for knowledge indexing (Module 02)
-- A Microsoft Foundry project with a model deployment ready (Module 03)
+- An Azure AI Search service and knowledge index ready for agent grounding
+- A Microsoft Foundry project with a `gpt-5` deployment ready for Parts 1 and 3
 - A cloned repository in Cloud Shell storage
 
 ## Topics
@@ -21,12 +21,14 @@ By the end of this module, every participant should have working access to:
 ## Required Azure Services
 
 | Service | Used In | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Azure Resource Group | All modules | Container for all workshop resources |
-| Azure AI Search | Module 02 | Knowledge grounding for the agent |
-| Microsoft Foundry | Module 03 | Agent creation and model deployment |
-| Azure Container Apps (or App Service) | Module 05 | Hosting the customer operations app |
-| Azure Storage | Module 05 | Supporting assets |
+| Azure AI Search | Part 1 and Part 2 | Knowledge grounding for live answers |
+| Microsoft Foundry | Part 1 and Part 3 | Knowledge and Call Analysis agents |
+| Azure Communication Services | Part 2 | Inbound PSTN voice channel |
+| Azure Container Apps | Part 2 and Part 3 | Voice Gateway and post-call Worker hosting |
+| Azure Storage | Part 3 | Call artifacts and post-call queue |
+| Dynamics 365 | Part 3 | Cases requiring human follow-up |
 
 ## Cloud Shell Setup Path
 
@@ -67,7 +69,7 @@ $postfix = "workshop"   # replace with your team or customer suffix
 - [ ] Azure Cloud Shell available and ready
 - [ ] Repository cloned and `setup-local.ps1` runs without errors in Cloud Shell
 - [ ] Resource names are derived from `$postfix`
-- [ ] Ready to proceed to Module 02
+- [ ] Ready to proceed to Part 1
 
 ## Module Checklist
 
@@ -76,4 +78,4 @@ $postfix = "workshop"   # replace with your team or customer suffix
 - [ ] Complete Exercise 3 - Microsoft Foundry Project
 - [ ] Fill in `config/workshop.env.example`
 - [ ] Run Cloud Shell setup and confirm no errors
-- [ ] Proceed to Module 02
+- [ ] Proceed to Part 1

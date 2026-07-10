@@ -2,14 +2,15 @@
 
 ## Objective
 
-Show business value of request-to-resolution automation with governance-aware escalation.
+Show business value across a grounded live call and governed post-call follow-up.
 
 ## Flow
 
-1. Warranty FAQ response from grounded knowledge.
-2. Service request status lookup with tool call.
-3. Escalation recommendation for repeated unresolved issue.
+1. Customer receives a grounded warranty answer by phone.
+2. `CallDisconnected` starts asynchronous analysis without delaying the caller.
+3. A resolved call creates no Case.
+4. An unresolved billing call creates one Dynamics Case for follow-up.
 
 ## Expected Outcome
 
-Stakeholders see faster customer operations handling with clear escalation boundaries.
+Stakeholders see faster voice support, consistent knowledge use, and a controlled boundary between AI recommendation and Dynamics writes.

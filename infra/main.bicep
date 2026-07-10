@@ -8,6 +8,7 @@ param voiceLiveModelName string = ''
 param voiceLiveModelVersion string = ''
 param voiceLiveModelCapacity int = 50
 param acsConnectionString string = ''
+@secure()
 param acsCallbackSecret string = ''
 param publicBaseUrl string = ''
 param foundryAgentId string = ''
@@ -45,8 +46,10 @@ module app './modules/app.bicep' = {
 
 output AZURE_RESOURCE_GROUP string = rg.name
 output AZURE_LOCATION string = location
-output WEB_URL string = app.outputs.webUrl
-output API_URL string = app.outputs.webUrl
+output WEB_URL string = app.outputs.gatewayUrl
+output GATEWAY_URL string = app.outputs.gatewayUrl
+output API_URL string = app.outputs.apiUrl
+output FRONTEND_URL string = app.outputs.portalUrl
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = app.outputs.acrLoginServer
 output AZURE_STORAGE_ACCOUNT_NAME string = app.outputs.storageAccountName
 output AZURE_SEARCH_ENDPOINT string = app.outputs.searchEndpoint

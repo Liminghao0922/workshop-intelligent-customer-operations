@@ -3,28 +3,35 @@
 ## Logical Architecture
 
 ```mermaid
-graph TD
-    A[Customer] --> B[Customer Operations Web App]
-    B --> C[Backend API]
-    C --> D[Microsoft Foundry Agent]
-    D --> E[Azure AI Search]
-    E --> F[Enterprise Documents / Tables / Knowledge]
-    D --> G[Business Action Tools]
-    G --> H[Order / Service / Case APIs]
-    D --> I[Human Approval or Escalation]
+flowchart LR
+    Customer[Customer] --> ACS[ACS Voice Channel]
+    ACS --> Gateway[Voice Gateway]
+    Gateway --> Knowledge[Knowledge Agent]
+    Knowledge --> Search[Azure AI Search]
+    Search --> Sources[FAQ and Support Policy]
+    ACS -->|CallDisconnected| Gateway
+    Gateway --> Queue[Storage Queue]
+    Queue --> Worker[Azure Function Worker]
+    Worker --> Analysis[Call Analysis Agent]
+    Analysis --> Worker
+    Worker -->|Validated follow-up| Dynamics[Dynamics 365 Case]
+    Worker --> Results[Durable Processing Result]
 ```
 
 ## Main Components
 
 | Component | Purpose |
-|---|---|
-| Customer Operations Web App | User interface for customer requests |
-| Backend API | Mediates frontend, agent, and business systems |
-| Microsoft Foundry Agent | Understands request, reasons, uses knowledge and tools |
-| Azure AI Search | Provides enterprise knowledge grounding via vector/hybrid search |
-| Business APIs | Performs operational actions |
-| Human Approval | Handles escalation and controlled execution |
+| --- | --- |
+| ACS Voice Channel | Receives the PSTN call and delivers speech events |
+| Voice Gateway | Answers calls, manages callbacks, and connects speech to the Knowledge Agent |
+| Knowledge Agent | Generates concise customer-facing answers grounded by Search |
+| Azure AI Search | Retrieves approved FAQ and support-policy content |
+| Storage Queue | Decouples live calls from post-call processing |
+| Azure Function Worker | Masks PII, validates analysis, applies policy, and performs writes |
+| Call Analysis Agent | Produces structured summary and follow-up recommendation |
+| Dynamics 365 | Stores idempotent Cases requiring human follow-up |
+| Operations Dashboard | Optional view over call and processing records; not in the critical path |
 
 ## Design Principle
 
-The workshop should be organized by **customer request journey**, not by individual product features.
+The workshop follows the **customer call lifecycle**, not a product catalog. Real-time answering and asynchronous post-call operations have separate reliability and security boundaries.

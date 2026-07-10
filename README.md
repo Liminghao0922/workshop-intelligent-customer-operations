@@ -1,6 +1,6 @@
 # Workshop - Intelligent Customer Operations
 
-Build an intelligent customer request automation solution using **Microsoft Foundry Agents** and **Azure AI Search**.
+Build an intelligent voice support lifecycle using **Microsoft Foundry Agents**, **Azure AI Search**, **Azure Communication Services**, **Azure Functions**, and **Dynamics 365**.
 
 This repository is designed as both:
 
@@ -9,20 +9,14 @@ This repository is designed as both:
 
 ## Workshop Story
 
-Participants will build an end-to-end customer request automation experience:
+Participants build an end-to-end customer call experience:
 
 ```text
-Customer Request
-    ↓
-Customer Operations Web App
-    ↓
-Microsoft Foundry Agent
-    ↓
-Azure AI Search / Enterprise Knowledge
-    ↓
-Business APIs / Actions
-    ↓
-Response / Resolution / Escalation
+Customer Call → ACS Voice Channel → Knowledge Agent → Azure AI Search
+                                           ↓
+CallDisconnected → Storage Queue → Azure Function → Call Analysis Agent
+                                           ↓
+                              Conditional Dynamics 365 Case
 ```
 
 ## Recommended Repository Name
@@ -34,15 +28,12 @@ workshop-intelligent-customer-operations
 ## High-Level Modules
 
 | Module | Name | Outcome |
-|---|---|---|
+| --- | --- | --- |
 | 00 | Workshop Overview | Understand business scenario and target architecture |
-| 01 | Prerequisites & Environment Setup | Prepare Azure, search, Foundry, GitHub, and Cloud Shell access |
-| 02 | Knowledge Foundation with Azure AI Search | Prepare enterprise knowledge and search index |
-| 03 | Build AI Agent with Microsoft Foundry | Create and test a customer operations agent |
-| 04 | Business Actions & Tool Calling | Connect the agent to backend APIs / actions |
-| 05 | Deploy Customer Operations App | Deploy frontend, API, and agent integration |
-| 06 | End-to-End Validation | Validate request-to-resolution scenarios |
-| 07 | Multi-Agent Extension | Extend into supervisor / specialist agent workflow |
+| 01 | Shared Environment Setup | Prepare Azure, Search, Foundry, ACS, Storage, and hosting prerequisites |
+| Part 1 | Build the Knowledge Agent | Create and validate Azure AI Search-grounded answers |
+| Part 2 | Build the Voice Channel | Connect inbound ACS calls to the Knowledge Agent |
+| Part 3 | Analyze Calls and Create Tickets | Process call-ended events and conditionally create Dynamics cases |
 
 ## Local Preview
 
@@ -72,23 +63,23 @@ Optional minimal web UI:
 .\scripts\run-frontend.ps1
 ```
 
-## Architecture Split (Locked)
+## Execution Lanes
 
 To avoid mixed priorities, this repo now follows two explicit lanes:
 
-1. **Workshop Demo Lane (Cloud Shell path)**
+1. **Local Simulation Lane**
    - Purpose: deterministic classroom/demo execution in Cloud Shell.
    - Entry: `scripts/setup-local.ps1`, `scripts/run-api.ps1`, `scripts/run-demo.ps1`.
    - Runtime: Aspire AppHost with workshop fallback where needed.
    - Success criteria: reproducible call simulation and observable call artifacts.
 
-2. **Production Reference Lane (Azure-integrated path)**
+2. **Azure-integrated Workshop Lane**
     - Purpose: customer-facing reference implementation for real cloud integration.
     - Entry: `docs/deployment.md` + `azd` provisioning/deploy flow.
     - Runtime: Microsoft Foundry/ACS/Search/Storage/Container Apps integrations.
-   - Success criteria: real resource-backed behavior, operational readiness, and security/compliance hardening.
+    - Success criteria: a real grounded voice call and an idempotent post-call Dynamics workflow.
 
-**Rule:** keep shared code in Aspire services; keep lane-specific behavior behind configuration and deployment profiles, not separate legacy folders.
+The Portal and API remain an optional Operations Dashboard. They are not required to understand the three-Part call lifecycle.
 
 ## Publish to GitHub Pages
 
@@ -117,4 +108,3 @@ workshop-intelligent-customer-operations-v2/
 ├── mkdocs.yml
 └── requirements.txt
 ```
-
