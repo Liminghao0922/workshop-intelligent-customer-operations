@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.44.1.10279",
-      "templateHash": "4224175714409609469"
+      "templateHash": "12857748824583780507"
     }
   },
   "parameters": {
@@ -157,7 +157,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.44.1.10279",
-              "templateHash": "8983219122801680166"
+              "templateHash": "6375299596688379211"
             }
           },
           "parameters": {
@@ -1126,7 +1126,7 @@
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('webName')), '2024-03-01', 'full').identity.principalId]",
                 "roleDefinitionId": "[format('{0}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002', resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')))]",
-                "scope": "/"
+                "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",
@@ -1140,7 +1140,7 @@
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.App/containerApps', variables('workerName')), '2024-03-01', 'full').identity.principalId]",
                 "roleDefinitionId": "[format('{0}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002', resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName')))]",
-                "scope": "/"
+                "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosName'))]",

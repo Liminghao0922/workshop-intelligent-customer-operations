@@ -648,7 +648,7 @@ resource webCosmosDataContributor 'Microsoft.DocumentDB/databaseAccounts/sqlRole
   properties: {
     principalId: web.identity.principalId
     roleDefinitionId: '${cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002'
-    scope: '/'
+    scope: cosmos.id
   }
 }
 
@@ -658,7 +658,7 @@ resource workerCosmosDataContributor 'Microsoft.DocumentDB/databaseAccounts/sqlR
   properties: {
     principalId: worker.identity.principalId
     roleDefinitionId: '${cosmos.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002'
-    scope: '/'
+    scope: cosmos.id
   }
 }
 
